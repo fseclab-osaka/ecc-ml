@@ -1,0 +1,21 @@
+python main.py --before 1 --after 2 --date 20230714-1805 --save --error
+python main.py --before 69 --after 70 --date 20230714-1805 --save --error
+python main.py --before 1 --after 2 --date 20230714-1837 --save --error
+python main.py --before 69 --after 70 --date 20230714-1837 --save --error
+python main.py --before 1 --after 2 --date 20230714-1908 --save --error
+python main.py --before 69 --after 70 --date 20230714-1908 --save --error
+python main.py --before 1 --after 2 --date 20230714-1940 --save --error
+python main.py --before 69 --after 70 --date 20230714-1940 --save --error
+python main.py --before 1 --after 2 --date 20230714-2011 --save --error
+python main.py --before 69 --after 70 --date 20230714-2011 --save --error
+
+python main.py --before 1 --date 20230714-1805 --save --error --dist-bit 16
+python main.py --before 99 --date 20230714-1805 --save --error --dist-bit 16
+python main.py --before 1 --date 20230714-1837 --save --error --dist-bit 16
+python main.py --before 99 --date 20230714-1837 --save --error --dist-bit 16
+python main.py --before 1 --date 20230714-1908 --save --error --dist-bit 16
+python main.py --before 99 --date 20230714-1908 --save --error --dist-bit 16
+python main.py --before 1 --date 20230714-1940 --save --error --dist-bit 16
+python main.py --before 99 --date 20230714-1940 --save --error --dist-bit 16
+python main.py --before 1 --date 20230714-2011 --save --error --dist-bit 16
+python main.py --before 99 --date 20230714-2011 --save --error --dist-bit 16
