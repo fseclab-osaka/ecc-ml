@@ -1,0 +1,10 @@
+#python main.py --before 1 --after 2 --date 20230714-1805
+python main.py --before 69 --after 70 --date 20230714-1805
+python main.py --before 1 --after 2 --date 20230714-1837
+python main.py --before 69 --after 70 --date 20230714-1837
+python main.py --before 1 --after 2 --date 20230714-1908
+python main.py --before 69 --after 70 --date 20230714-1908
+python main.py --before 1 --after 2 --date 20230714-1940
+python main.py --before 69 --after 70 --date 20230714-1940
+python main.py --before 1 --after 2 --date 20230714-2011
+python main.py --before 69 --after 70 --date 20230714-2011

@@ -912,6 +912,19 @@ for i, crc in enumerate(crc_layer):
     print(len(crc))
     weight = nn.Parameter(torch.tensor(crc))
     print(weight)
+    model.fc.weight[i] = torch.tensor(crc)
+print(model.fc.weight)
+# 元のparameterにcrcを追記すると、floatに戻せない
+# parameter of epoch args.before
+"""
+"""
+# model.fcのweightsを書き換え 
+ -> CRCを少数にするのが難しそうなので別にCRCを保持
+for i, crc in enumerate(crc_layer):
+    print(len(model.fc.weight[i]))
+    print(len(crc))
+    weight = nn.Parameter(torch.tensor(crc))
+    print(weight)
 print(model.fc.weight)
 # 元のparameterにcrcを追記すると、floatに戻せない
 # parameter of epoch args.before
