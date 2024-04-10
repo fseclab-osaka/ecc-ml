@@ -12,8 +12,8 @@ def get_args():
     parser.add_argument("--before", type=int, default=1, help="Set 'before'-th epoch's model as the original model")
     parser.add_argument("--after", type=int, default=2, help="Error-correct 'after'-th epoch's model")
     parser.add_argument("--arch", type=str, default="resnet18", 
-        choices=["resnet18", "resnet152", "VGG11", "VGG13", "VGG16", "VGG19", "shufflenetg2", "mobilenet"])
-    parser.add_argument("--dataset", type=str, default="cifar10", choices=["cifar10", "cifar100"])
+        choices=["resnet18", "resnet152", "VGG11", "VGG13", "VGG16", "VGG19", "shufflenetg2", "mobilenet", "bert"])
+    parser.add_argument("--dataset", type=str, default="cifar10", choices=["cifar10", "cifar100", "classification"])
     parser.add_argument("--device", type=str, default="cuda", choices=["cuda", "cpu"])
     # train
     parser.add_argument("--lr", type=float, default=0.001, help="Learning rate for training")
