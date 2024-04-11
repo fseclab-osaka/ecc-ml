@@ -472,11 +472,11 @@ def make_savedir(args):
 def get_name_from_correct_targets(args, model, save_dir):
     save_data_file = f"{'/'.join(make_savedir(args).split('/')[:6])}/{args.seed}_targets.npy"
     targets = np.load(save_data_file)
-    get_forward_steps = model.get_forward_steps()
+    steps = model.get_layers()
 
     correct_targets_name = {}
     for layer, weight_id in targets:
-        target_module = get_forward_steps[layer]
+        target_module = steps[layer]
         for name, module in model.named_modules():
             if id(module) == id(target_module):
                 if name not in correct_targets_name:

@@ -10,12 +10,13 @@ import time
 import numpy as np
 import torch
 
-from ErrorCorrectingCode import turbo_code, rs_code, bch_code
+from ErrorCorrectingCode import rs_code
 
 from network import *
 from utils import *
 from arguments import get_args
 from logger import get_logger, logging_args
+from finetune_bert import BERTClass, CustomDataset, loss_fn, prepare_bert_dataset
 
 
 def encode_before(args, model_before, ECC, save_dir, logging):
@@ -23,47 +24,42 @@ def encode_before(args, model_before, ECC, save_dir, logging):
     model_encoded = copy.deepcopy(model_before)
     state_dict_before = model_before.state_dict()
     state_dict_encoded = model_encoded.state_dict()
-    all_reds1 = []
-    all_reds2 = []
+    all_reds = []
     if args.target_ratio < 1.0:
         correct_targets_name = get_name_from_correct_targets(args, model_before, save_dir)
         modules_before = {name: module for name, module in model_before.named_modules()}
         weight_ids = None
     
     for name in state_dict_before:
-        if "num_batches_tracked" in name:
-            continue
-
         param = state_dict_before[name]
         encoded_params = []
-        reds1 = []
-        reds2 = []
+        reds = []
         params = []
 
         if args.target_ratio < 1.0:
             layer = '.'.join(name.split('.')[:-1])
             is_weight = (name.split('.')[-1] == "weight")
-            is_conv = layer in correct_targets_name   # conv
+            is_embedding = layer in correct_targets_name   # ebedding
             is_linear = layer in modules_before and isinstance(modules_before[layer], torch.nn.Linear)   # linear
             
         for ids, value in enumerate(param.view(-1)):
             if args.target_ratio < 1.0:
                 original_index = np.unravel_index(ids, param.shape)
-                if is_conv or is_linear:   # conv or linear
+                if is_embedding or is_linear:   # conv or linear
                     if is_weight and weight_ids is not None:   # weight
-                        if original_index[1] not in weight_ids:   # targets
+                        if original_index[1] not in weight_ids:   # not targets
                             encoded_params.append(value.item())
                             continue
-                        #print('1', "ids:", ids, "original:", original_index[1], "wid:", weight_ids)
-                if is_conv:   # conv
+                if is_embedding:   # embedding
                     weight_ids = correct_targets_name[layer]   # update
-                    #print("new", weight_ids)
                 
                 if not is_linear:
-                    if original_index[0] not in weight_ids:   # targets
+                    if weight_ids is None:
                         encoded_params.append(value.item())
                         continue
-                    #print('0', "ids:", ids, "original:", original_index[0], "wid:", weight_ids)
+                    if original_index[0] not in weight_ids:   # not targets
+                        encoded_params.append(value.item())
+                        continue
 
             params.append(value.item())
             whole_b_bs = []
@@ -77,8 +73,7 @@ def encode_before(args, model_before, ECC, save_dir, logging):
             msglen = args.msg_len
             redlen = args.t*4   # 4 = 8 % 2
             b_es = encoded_msg[:msglen]
-            reds1.append(encoded_msg[msglen:msglen+redlen])
-            reds2.append(encoded_msg[msglen+redlen:])
+            reds.append(encoded_msg[msglen:])
             b_e = []
             for i in range(len(whole_b_bs)):
                 b_e = b_es[i*args.msg_len:(i+1)*args.msg_len]
@@ -88,15 +83,13 @@ def encode_before(args, model_before, ECC, save_dir, logging):
                 encoded_params.append(p_e)
             params = []   # initialize
             
-        all_reds1.append(reds1)
-        all_reds2.append(reds2)
+        all_reds.append(reds)
         reshape_encoded_params = torch.Tensor(encoded_params).view(param.data.size())
         # Modify the state dict
         state_dict_encoded[name] = reshape_encoded_params
         logging.info(f"{name} is encoded")
 
-    write_varlen_csv(all_reds1, f"{save_dir}/reds1")
-    write_varlen_csv(all_reds2, f"{save_dir}/reds2")
+    write_varlen_csv(all_reds, f"{save_dir}/reds")
 
     # Load the modified state dict
     model_encoded.load_state_dict(state_dict_encoded)
@@ -193,10 +186,13 @@ def main():
     torch_fix_seed(args.seed)
     device = torch.device("cpu")
     
+    args.seed = 1
     args.dataset = "classification"
     args.arch = "bert"
-    #args.epoch = 1
+    args.epoch = 5
     args.lr = 1e-05
+    args.before = 1
+    args.after = 5
     
     if args.over_fitting:
         mode = "over-fitting"
@@ -210,12 +206,8 @@ def main():
     load_dir = f"./train/{args.dataset}/{args.arch}/{args.epoch}/{args.lr}/{mode}{args.pretrained}/{args.seed}/model"
     save_dir = make_savedir(args)
     
-    if args.ecc == "turbo":
-        ECC = turbo_code.TurboCode(args)
-    elif args.ecc == "rs":
+    if args.ecc == "rs":
         ECC = rs_code.RSCode(args)
-    elif args.ecc == "bch":
-        ECC = bch_code.BCHCode(args)
     else:
         raise NotImplementedError
 
@@ -224,7 +216,11 @@ def main():
         if not os.path.isfile(save_data_file):
             logging = get_logger(f"{save_dir}/{args.mode}.log")
             logging_args(args, logging)
-            model = load_model(args, f"{load_dir}/{args.before}", device)
+            model = BERTClass()
+            model_parallel = torch.nn.DataParallel(model, device_ids=[0,1])
+            model_parallel.load_state_dict(torch.load(f"{load_dir}/{args.before}.pt", map_location="cpu"))
+            model = model_parallel.module
+            model.to(device)
             start_time = time.time()
             encode_before(args, model, ECC, save_dir, logging)
             end_time = time.time()
@@ -236,7 +232,11 @@ def main():
         if not os.path.isfile(save_data_file):
             logging = get_logger(f"{save_dir}/{args.mode}{args.after}.log")
             logging_args(args, logging)
-            model = load_model(args, f"{load_dir}/{args.after}", device)
+            model = BERTClass()
+            model_parallel = torch.nn.DataParallel(model, device_ids=[0,1])
+            model_parallel.load_state_dict(torch.load(f"{load_dir}/{args.after}.pt", map_location="cpu"))
+            model = model_parallel.module
+            model.to(device)
             start_time = time.time()
             decode_after(args, model, ECC, save_dir, logging)
             end_time = time.time()

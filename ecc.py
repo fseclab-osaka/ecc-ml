@@ -10,7 +10,7 @@ import time
 import numpy as np
 import torch
 
-from ErrorCorrectingCode import turbo_code, rs_code, bch_code
+from ErrorCorrectingCode import rs_code
 
 from network import *
 from utils import *
@@ -205,12 +205,8 @@ def main():
     load_dir = f"./train/{args.dataset}/{args.arch}/{args.epoch}/{args.lr}/{mode}{args.pretrained}/{args.seed}/model"
     save_dir = make_savedir(args)
     
-    if args.ecc == "turbo":
-        ECC = turbo_code.TurboCode(args)
-    elif args.ecc == "rs":
+    if args.ecc == "rs":
         ECC = rs_code.RSCode(args)
-    elif args.ecc == "bch":
-        ECC = bch_code.BCHCode(args)
     else:
         raise NotImplementedError
 

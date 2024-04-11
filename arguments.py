@@ -22,7 +22,7 @@ def get_args():
     parser.add_argument("--label-flipping", type=float, default=0.0, help="Label-flipping rate")
     parser.add_argument("--over-fitting", action="store_true", default=False, help="Overfitting flag")
     # ecc
-    parser.add_argument("--ecc", type=str, default="rs", choices=["turbo", "rs", "bch"],
+    parser.add_argument("--ecc", type=str, default="rs", choices=["rs"],
         help="Type of error-correcting codes to use")
     parser.add_argument("--mode", type=str, default="encode", 
         choices=["encode", "decode", "acc", "output"],
