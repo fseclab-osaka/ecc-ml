@@ -39,13 +39,13 @@ def encode_before(args, model_before, ECC, save_dir, logging):
         if args.target_ratio < 1.0:
             layer = '.'.join(name.split('.')[:-1])
             is_weight = (name.split('.')[-1] == "weight")
-            is_embedding = layer in correct_targets_name   # ebedding
+            is_embedding = layer in correct_targets_name   # embedding
             is_linear = layer in modules_before and isinstance(modules_before[layer], torch.nn.Linear)   # linear
             
         for ids, value in enumerate(param.view(-1)):
             if args.target_ratio < 1.0:
                 original_index = np.unravel_index(ids, param.shape)
-                if is_embedding or is_linear:   # conv or linear
+                if is_embedding or is_linear:   # embedding or linear
                     if is_weight and weight_ids is not None:   # weight
                         if original_index[1] not in weight_ids:   # not targets
                             encoded_params.append(value.item())
@@ -103,12 +103,9 @@ def decode_after(args, model_after, ECC, save_dir, logging):
     state_dict_after = model_after.state_dict()
     state_dict_decoded = model_decoded.state_dict()
     # Load the encoded redidundants
-    all_reds1_str = read_varlen_csv(f"{save_dir}/reds1")
-    all_reds1 = get_intlist_from_strlist(all_reds1_str)
-    logging.info("all no.1 redundants are loaded")
-    all_reds2_str = read_varlen_csv(f"{save_dir}/reds2")
-    all_reds2 = get_intlist_from_strlist(all_reds2_str)
-    logging.info("all no.2 redundants are loaded")
+    all_reds_str = read_varlen_csv(f"{save_dir}/reds")
+    all_reds = get_intlist_from_strlist(all_reds_str)
+    logging.info("all redundants are loaded")
 
     if args.target_ratio < 1.0:
         correct_targets_name = get_name_from_correct_targets(args, model_after, save_dir)
@@ -117,9 +114,6 @@ def decode_after(args, model_after, ECC, save_dir, logging):
         
     i = 0
     for name in state_dict_after:
-        if "num_batches_tracked" in name:
-            continue
-        
         param = state_dict_after[name]
         decoded_params = []
         params = []
@@ -127,23 +121,26 @@ def decode_after(args, model_after, ECC, save_dir, logging):
         if args.target_ratio < 1.0:
             layer = '.'.join(name.split('.')[:-1])
             is_weight = (name.split('.')[-1] == "weight")
-            is_conv = layer in correct_targets_name   # conv
+            is_embedding = layer in correct_targets_name   # embedding
             is_linear = layer in modules_after and isinstance(modules_after[layer], torch.nn.Linear)   # linear
             
         j = 0
         for ids, value in enumerate(param.view(-1)):
             if args.target_ratio < 1.0:
                 original_index = np.unravel_index(ids, param.shape)
-                if is_conv or is_linear:   # conv or linear
+                if is_embedding or is_linear:   # embedding or linear
                     if is_weight and weight_ids is not None:   # weight
-                        if original_index[1] not in weight_ids:   # targets
+                        if original_index[1] not in weight_ids:   # not targets
                             decoded_params.append(value.item())
                             continue
-                if is_conv:   # conv
+                if is_embedding:   # embedding
                     weight_ids = correct_targets_name[layer]   # update
                 
                 if not is_linear:
-                    if original_index[0] not in weight_ids:   # targets
+                    if weight_ids is None:
+                        decoded_params.append(value.item())
+                        continue
+                    if original_index[0] not in weight_ids:   # not targets
                         decoded_params.append(value.item())
                         continue
 
@@ -155,9 +152,8 @@ def decode_after(args, model_after, ECC, save_dir, logging):
                 # limit bits
                 whole_b_as.append(whole_b_a)   # storage all bits
                 b_a.extend(whole_b_a[:args.msg_len])
-            reds1 = all_reds1[i][j]
-            reds2 = all_reds2[i][j]
-            encoded_msg = np.concatenate([b_a, reds1, reds2])
+            reds = all_reds[i][j]
+            encoded_msg = np.concatenate([b_a, reds])
             b_ds = ECC.decode(encoded_msg)
             b_d = []
             for k in range(len(whole_b_as)):

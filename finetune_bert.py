@@ -65,9 +65,12 @@ class CustomDataset(Dataset):
 
 
 class BERTClass(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, pretrained=True):
         super(BERTClass, self).__init__()
-        self.l1 = BertModel.from_pretrained('bert-base-uncased')
+        if pretrained:
+            self.l1 = BertModel.from_pretrained('bert-base-uncased')
+        else:
+            self.l1 = BertModel()
         self.l2 = torch.nn.Dropout(0.3)
         self.l3 = torch.nn.Linear(768, 6)
     
@@ -174,7 +177,7 @@ def train(epoch, model, training_loader, optimizer, device, logging):
     return accuracy, np.mean(losses)
         
 
-def validation(epoch, model, testing_loader, device, logging):
+def validation(model, testing_loader, device, logging):
     model.eval()
     losses = []
     fin_targets=[]
@@ -231,7 +234,7 @@ def main():
         logging = get_logger(f"{save_dir}/train.log")
         logging_args(args, logging)
 
-        uni_model = BERTClass()
+        uni_model = BERTClass(pretrained=True)
         if "cuda" in args.device:
             print(f"cuda: {args.device}")
             model = torch.nn.DataParallel(uni_model, device_ids=[0,1])
@@ -248,7 +251,7 @@ def main():
         test_losses = []
 
         start_time = time.time()
-        acc, loss = validation(args.pretrained, model, testing_loader, device, logging)
+        acc, loss = validation(model, testing_loader, device, logging)
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f"valid time {args.pretrained}: {elapsed_time} seconds")
@@ -272,7 +275,7 @@ def main():
                 f"TRAIN ACC: {acc:.6f}\t"
                 f"TRAIN LOSS: {loss:.6f}")
             start_time = time.time()
-            acc, loss = validation(epoch, model, testing_loader, device, logging)
+            acc, loss = validation(model, testing_loader, device, logging)
             end_time = time.time()
             elapsed_time = end_time - start_time
             print(f"valid time {epoch}: {elapsed_time} seconds")

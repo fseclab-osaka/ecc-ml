@@ -14,7 +14,7 @@ from network import *
 from utils import *
 from arguments import get_args
 from logger import get_logger, logging_args
-from finetune_bert import BERTClass, CustomDataset, loss_fn, prepare_bert_dataset
+from finetune_bert import BERTClass, loss_fn, prepare_bert_dataset
 
 
 class FilterPrunner:
