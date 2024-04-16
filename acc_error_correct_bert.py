@@ -224,6 +224,7 @@ def check_output_dist(model_before, model_decoded, test_loader, dist_data, devic
     for d in difference:
         if d[0] in dist_data["indice"]:
             outputs_after = dist_data["outputs"][np.where(dist_data["indice"]==d[0])]
+            outputs_after = torch.tensor(outputs_after).to(device, dtype=torch.float)
             pred_after = torch.sigmoid(outputs_after).cpu().detach().numpy().tolist()
             pred_after = np.array(pred_after) >= 0.5
             fail.append((d[1], pred_after, d[2]))

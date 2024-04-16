@@ -83,12 +83,10 @@ def create_summary_files(args, target_param, candidates, seeds, save_dir):
                 all_time_per_seed.append(atime)
                 sum_all_time[i] += atime
                 
-                reds1  = f"{load_dir}/reds1.txt"
-                reds1_size = os.path.getsize(reds1)
-                reds2  = f"{load_dir}/reds2.txt"
-                reds2_size = os.path.getsize(reds2)
-                reds_size_per_seed.append(reds1_size + reds2_size)
-                sum_reds_size[i] += reds1_size + reds2_size
+                reds  = f"{load_dir}/reds.txt"
+                each_reds_size = os.path.getsize(reds)
+                reds_size_per_seed.append(each_reds_size)
+                sum_reds_size[i] += each_reds_size
 
                 with open(f"{load_dir}/output{args.after}.log", "r") as log_file:
                     print(f"opend {load_dir}/output{args.after}.log")
@@ -223,9 +221,19 @@ def main():
     torch_fix_seed(args.seed)
     device = torch.device(args.device)
 
-    seeds = [1 ,2 ,3 ,4]
-    target_param = "t"
-    param_candis = ["5", "6", "7", "8"]
+    seeds = [1]
+    target_param = "target_ratio"
+    param_candis = ["0.1", "0.3", "0.6", "0.7", "0.8"]
+    
+    args.dataset = "classification"
+    args.arch = "bert"
+    args.epoch = 5
+    args.lr = 1e-05
+    args.before = 1
+    args.after = 5
+    args.msg_len = 32
+    args.t = 8
+    #args.target_ratio = 1.0
     
     if args.over_fitting:
         mode = "over-fitting"
