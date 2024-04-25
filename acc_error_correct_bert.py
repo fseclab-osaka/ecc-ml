@@ -140,7 +140,7 @@ def check_output(args, model_before, model_after, model_decoded, device, save_di
     model_decoded.eval()
     _, test_loader = prepare_bert_dataset()
 
-    save_data_file = "/".join(save_dir.split("/")[:4]) + f"{args.seed}_diff{args.after}.npz"
+    save_data_file = "/".join(save_dir.split("/")[:4]) + f"/{args.seed}_diff{args.after}.npz"
     if not os.path.isfile(save_data_file):
         indice, outputs = save_output_dist(model_before, model_after, test_loader, device)
         np.savez(save_data_file, indice=indice, outputs=outputs)
