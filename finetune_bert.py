@@ -98,7 +98,7 @@ class BERTClass(torch.nn.Module):
         return steps
 
 
-def prepare_bert_dataset():
+def prepare_bert_dataset(args):
     MAX_LEN = 200
     TRAIN_BATCH_SIZE = 8
     VALID_BATCH_SIZE = 4
@@ -113,6 +113,19 @@ def prepare_bert_dataset():
     test_dataset=new_df.drop(train_dataset.index).reset_index(drop=True)
     train_dataset = train_dataset.reset_index(drop=True)
 
+    # over-fitting / label-flipping
+    if args.over_fitting:
+        label_to_delete = 5   # 0-5
+        train_dataset = train_dataset[train_dataset.iloc[:, -1].apply(lambda x: x[label_to_delete] == 1)].reset_index(drop=True)
+        train_dataset = pd.concat([train_dataset]*100, ignore_index=True)
+    if args.label_flipping > 0:
+        def flip_label(labels, flip_ratio):
+            for i in range(len(labels)):
+                if np.random.choice([True, False], p=[flip_ratio, 1-flip_ratio]):
+                    labels[i] = 1 - labels[i]
+            return labels
+        train_dataset.iloc[:, -1] = train_dataset.iloc[:, -1].apply(lambda x: flip_label(x, args.label_flipping)).reset_index(drop=True)
+        
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     training_set = CustomDataset(train_dataset, tokenizer, MAX_LEN)
     testing_set = CustomDataset(test_dataset, tokenizer, MAX_LEN)
@@ -212,7 +225,7 @@ def main():
 
     args.dataset = "classification"
     args.arch = "bert"
-    #args.epoch = 1
+    args.epoch = 5
     args.lr = 1e-05
     
     if args.over_fitting:
@@ -224,6 +237,7 @@ def main():
     else:
         raise NotImplementedError
     
+    load_dir = f"./train/{args.dataset}/{args.arch}/{args.epoch}/{args.lr}/normal0/{args.seed}/model"
     save_dir = f"./train/{args.dataset}/{args.arch}/{args.epoch}/{args.lr}/{mode}{args.pretrained}/{args.seed}"
     os.makedirs(save_dir, exist_ok=True)
     save_model_dir = f"{save_dir}/model"
@@ -234,18 +248,24 @@ def main():
         logging = get_logger(f"{save_dir}/train.log")
         logging_args(args, logging)
 
-        uni_model = BERTClass(pretrained=True)
+        if args.pretrained == 0:
+            uni_model = BERTClass(pretrained=True)
+        else:
+            uni_model = BERTClass()
+            
         if "cuda" in args.device:
             print(f"cuda: {args.device}")
             model = torch.nn.DataParallel(uni_model, device_ids=[0,1])
             device_staging = torch.device("cuda:0")
             model.to(device_staging)
         else:
-            print(f"cpu: {args.device}")
-            model = uni_model
-            torch.set_printoptions(threshold=10000)
+            raise NotImplementedError
+        
+        if args.pretrained > 0:
+            model.load_state_dict(torch.load(f"{load_dir}/{args.pretrained}.pt", map_location="cpu"))
+            model.to(device)
 
-        training_loader, testing_loader = prepare_bert_dataset()
+        training_loader, testing_loader = prepare_bert_dataset(args)
 
         train_losses = []
         test_losses = []
@@ -301,25 +321,4 @@ def main():
 
 
 if __name__ == "__main__":
-    args = get_args()
-    torch_fix_seed(args.seed)
-    device = torch.device(args.device)
-
-    uni_model = BERTClass()
-    model = torch.nn.DataParallel(uni_model, device_ids=[0,1])
-    device_staging = torch.device("cuda:0")
-    model.to(device_staging)
-    training_loader, _ = prepare_bert_dataset()
-    model.train()
-    for _, data in enumerate(training_loader, 0):
-        ids = data['ids'].to(device, dtype=torch.long)
-        mask = data['mask'].to(device, dtype=torch.long)
-        token_type_ids = data['token_type_ids'].to(device, dtype=torch.long)
-        print(ids)
-        steps, outputs = model.get_forward_steps(ids, mask, token_type_ids)
-        print(outputs)
-        break
-    print(len(steps), len(steps[0]),  len(steps[1]))
-    #print(steps[0])
-    exit()
-    #main()
+    main()
