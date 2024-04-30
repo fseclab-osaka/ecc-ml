@@ -213,9 +213,7 @@ def main():
             logging = get_logger(f"{save_dir}/{args.mode}.log")
             logging_args(args, logging)
             model = BERTClass()
-            model_parallel = torch.nn.DataParallel(model, device_ids=[0,1])
-            model_parallel.load_state_dict(torch.load(f"{load_dir}/{args.before}.pt", map_location="cpu"))
-            model = model_parallel.module
+            model.load_state_dict(torch.load(f"{load_dir}/{args.before}.pt", map_location="cpu"))
             model.to(device)
             start_time = time.time()
             encode_before(args, model, ECC, save_dir, logging)
@@ -229,9 +227,7 @@ def main():
             logging = get_logger(f"{save_dir}/{args.mode}{args.after}.log")
             logging_args(args, logging)
             model = BERTClass()
-            model_parallel = torch.nn.DataParallel(model, device_ids=[0,1])
-            model_parallel.load_state_dict(torch.load(f"{load_dir}/{args.after}.pt", map_location="cpu"))
-            model = model_parallel.module
+            model.load_state_dict(torch.load(f"{load_dir}/{args.after}.pt", map_location="cpu"))
             model.to(device)
             start_time = time.time()
             decode_after(args, model, ECC, save_dir, logging)

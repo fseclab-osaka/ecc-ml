@@ -55,7 +55,7 @@ class FilterPrunner:
         if activation_index not in self.filter_ranks:
             self.filter_ranks[activation_index] = \
                 torch.FloatTensor(activation.size(2)).zero_()
-
+            
             self.filter_ranks[activation_index] = self.filter_ranks[activation_index].to(self.device)
 
         self.filter_ranks[activation_index] += taylor
@@ -69,7 +69,7 @@ class FilterPrunner:
         for layer, module in enumerate(steps):
             if isinstance(module, torch.nn.modules.Embedding):
                 if activation_index not in self.filter_ranks:
-                    self.filter_ranks[activation_index] = module.weight.size(2)
+                    self.filter_ranks[activation_index] = module.weight.size(1)
                 self.activation_to_layer[activation_index] = layer
                 activation_index += 1
 
@@ -162,7 +162,7 @@ def get_candidates_to_correct(args, model, train_loader, num_filters_to_correct,
         
 def prune(args, model, device, save_dir, logging):
     save_data_file = f"{save_dir}/{args.seed}_targets.npy"
-    train_loader, _ = prepare_bert_dataset()
+    train_loader, _ = prepare_bert_dataset(args)
     
     number_of_filters = total_num_filters(model)
     num_filters_to_correct = int(number_of_filters * args.target_ratio)
@@ -193,9 +193,7 @@ def main():
 
     load_dir = f"./train/{args.dataset}/{args.arch}/{args.epoch}/{args.lr}/{mode}{args.pretrained}/{args.seed}/model"
     model_before = BERTClass()
-    model_parallel = torch.nn.DataParallel(model_before, device_ids=[0,1])
-    model_parallel.load_state_dict(torch.load(f"{load_dir}/{args.before}.pt", map_location="cpu"))
-    model_before = model_parallel.module
+    model_before.load_state_dict(torch.load(f"{load_dir}/{args.before}.pt", map_location="cpu"))
     model_before.to(device)
 
     #target_ratio = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
