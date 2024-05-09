@@ -14,7 +14,7 @@ def get_args():
     parser.add_argument("--arch", type=str, default="resnet18", 
         choices=["resnet18", "resnet152", "VGG11", "VGG13", "VGG16", "VGG19", "shufflenetg2", "mobilenet", "bert"])
     parser.add_argument("--dataset", type=str, default="cifar10", choices=["cifar10", "cifar100", "classification"])
-    parser.add_argument("--device", type=str, default="cuda")
+    parser.add_argument("--device", type=str, default="cuda", choices=["cuda", "cuda:0", "cuda:1", "cpu"])
     # train
     parser.add_argument("--lr", type=float, default=0.001, help="Learning rate for training")
     parser.add_argument("--epoch", type=int, default=100, help="Number of epochs for training")

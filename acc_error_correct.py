@@ -90,22 +90,19 @@ def calc_acc(args, model_before, model_after, model_decoded, save_dir, logging):
 
 
 def check_output(args, model_before, model_after, model_decoded, device, save_dir, logging):
-    model_before.eval()
-    model_after.eval()
-    model_decoded.eval()
     _, test_loader = prepare_dataset(args)
 
     save_data_file = "/".join(save_dir.split("/")[:4]) + f"/{args.seed}_diff{args.after}.npz"
     if not os.path.isfile(save_data_file):
-        indice, outputs = save_output_dist(model_before, model_after, test_loader, device)
+        indice, outputs = save_output_dist(args, model_before, model_after, test_loader, device)
         np.savez(save_data_file, indice=indice, outputs=outputs)
 
     dist_data = np.load(save_data_file)   # dist_data["indice"], dist_data["outputs"]
-    fail, deterioration = check_output_dist(model_before, model_decoded, test_loader, dist_data, device)
+    fail, deterioration = check_output_dist(args, model_before, model_decoded, test_loader, dist_data, device)
     
-    before_acc, before_loss = test(model_before, test_loader, device)
-    after_acc, after_loss = test(model_after, test_loader, device)
-    decoded_acc, decoded_loss = test(model_decoded, test_loader, device)
+    before_acc, before_loss = test(args, model_before, test_loader, device)
+    after_acc, after_loss = test(args, model_after, test_loader, device)
+    decoded_acc, decoded_loss = test(args, model_decoded, test_loader, device)
     logging.info(f"Before\tacc: {before_acc},\tloss: {before_loss}")
     logging.info(f"After\tacc: {after_acc},\tloss: {after_loss}")
     logging.info(f"Decoded\tacc: {decoded_acc},\tloss: {decoded_loss}")
@@ -121,23 +118,31 @@ def check_output(args, model_before, model_after, model_decoded, device, save_di
             writer.writerow([de[0], de[1]])
 
 
-def save_output_dist(model_before, model_after, test_loader, device):
+def save_output_dist(args, model_before, model_after, test_loader, device):
+    if args.arch == "bert":
+        get_outputs = get_outputs_bert
+        to_pred_from_outputs = to_pred_from_outputs_bert
+    else:
+        get_outputs = get_outputs_cnn
+        to_pred_from_outputs = to_pred_from_outputs_cnn
+    
+    model_before.eval()
+    model_after.eval()
     indice = 0
     dist_indice = []
     dist_outputs_after = []
 
     with torch.no_grad():
-        for imgs, labels in test_loader:
-            imgs, labels = imgs.to(device), labels.to(device)
-            outputs_before = model_before(imgs)
-            outputs_after = model_after(imgs)
+        for _, data in enumerate(test_loader):
+            outputs_before, _ = get_outputs(model_before, data, device)
+            outputs_after, _ = get_outputs(model_after, data, device)
 
-            pred_before = np.argmax(outputs_before.to("cpu").detach().numpy(), axis=1)
-            pred_after = np.argmax(outputs_after.to("cpu").detach().numpy(), axis=1)
+            pred_before = to_pred_from_outputs(outputs_before)
+            pred_after = to_pred_from_outputs(outputs_after)
 
             for i, p_b in enumerate(pred_before):
                 p_a = pred_after[i]
-                if p_b != p_a:
+                if p_b.all() != p_a.all():
                     dist_indice.append(indice)
                     dist_outputs_after.append(outputs_after[i].to("cpu").detach().numpy())
                 
@@ -146,22 +151,30 @@ def save_output_dist(model_before, model_after, test_loader, device):
     return np.array(dist_indice), np.array(dist_outputs_after)
 
 
-def check_output_dist(model_before, model_decoded, test_loader, dist_data, device):
+def check_output_dist(args, model_before, model_decoded, test_loader, dist_data, device):
+    if args.arch == "bert":
+        get_outputs = get_outputs_bert
+        to_pred_from_outputs = to_pred_from_outputs_bert
+    else:
+        get_outputs = get_outputs_cnn
+        to_pred_from_outputs = to_pred_from_outputs_cnn
+    
+    model_before.eval()
+    model_decoded.eval()
     indice = 0
     difference = []
 
     with torch.no_grad():
-        for imgs, labels in test_loader:
-            imgs, labels = imgs.to(device), labels.to(device)
-            outputs_before = model_before(imgs)
-            outputs_decoded = model_decoded(imgs)
+        for _, data in enumerate(test_loader):
+            outputs_before, _ = get_outputs(model_before, data, device)
+            outputs_decoded, _ = get_outputs(model_decoded, data, device)
 
-            pred_before = np.argmax(outputs_before.to("cpu").detach().numpy(), axis=1)
-            pred_decoded = np.argmax(outputs_decoded.to("cpu").detach().numpy(), axis=1)
-
+            pred_before = to_pred_from_outputs(outputs_before)
+            pred_decoded = to_pred_from_outputs(outputs_decoded)
+            
             for i, p_b in enumerate(pred_before):
                 p_d = pred_decoded[i]
-                if p_b != p_d:
+                if p_b.all() != p_d.all():
                     difference.append((indice, p_b, p_d))
                 
                 indice += 1
@@ -171,7 +184,7 @@ def check_output_dist(model_before, model_decoded, test_loader, dist_data, devic
     for d in difference:
         if d[0] in dist_data["indice"]:
             outputs_after = dist_data["outputs"][np.where(dist_data["indice"]==d[0])]
-            pred_after = np.argmax(outputs_after)
+            pred_after = to_pred_from_outputs(outputs_after)
             fail.append((d[1], pred_after, d[2]))
         else:
             deterioration.append((d[1], d[2]))

@@ -23,8 +23,7 @@ def encode_before(args, model_before, ECC, save_dir, logging):
     model_encoded = copy.deepcopy(model_before)
     state_dict_before = model_before.state_dict()
     state_dict_encoded = model_encoded.state_dict()
-    all_reds1 = []
-    all_reds2 = []
+    all_reds = []
     if args.target_ratio < 1.0:
         correct_targets_name = get_name_from_correct_targets(args, model_before, save_dir)
         modules_before = {name: module for name, module in model_before.named_modules()}
@@ -36,34 +35,33 @@ def encode_before(args, model_before, ECC, save_dir, logging):
 
         param = state_dict_before[name]
         encoded_params = []
-        reds1 = []
-        reds2 = []
+        reds = []
         params = []
 
         if args.target_ratio < 1.0:
             layer = '.'.join(name.split('.')[:-1])
             is_weight = (name.split('.')[-1] == "weight")
-            is_conv = layer in correct_targets_name   # conv
+            is_target = layer in correct_targets_name   # conv or embedding
             is_linear = layer in modules_before and isinstance(modules_before[layer], torch.nn.Linear)   # linear
             
         for ids, value in enumerate(param.view(-1)):
             if args.target_ratio < 1.0:
                 original_index = np.unravel_index(ids, param.shape)
-                if is_conv or is_linear:   # conv or linear
+                if is_target or is_linear:   # conv/embedding or linear
                     if is_weight and weight_ids is not None:   # weight
-                        if original_index[1] not in weight_ids:   # targets
+                        if original_index[1] not in weight_ids:   # not targets
                             encoded_params.append(value.item())
                             continue
-                        #print('1', "ids:", ids, "original:", original_index[1], "wid:", weight_ids)
-                if is_conv:   # conv
+                if is_target:   # conv or embedding
                     weight_ids = correct_targets_name[layer]   # update
-                    #print("new", weight_ids)
                 
                 if not is_linear:
-                    if original_index[0] not in weight_ids:   # targets
+                    if weight_ids is None:
                         encoded_params.append(value.item())
                         continue
-                    #print('0', "ids:", ids, "original:", original_index[0], "wid:", weight_ids)
+                    if original_index[0] not in weight_ids:   # not targets
+                        encoded_params.append(value.item())
+                        continue
 
             params.append(value.item())
             whole_b_bs = []
@@ -77,8 +75,7 @@ def encode_before(args, model_before, ECC, save_dir, logging):
             msglen = args.msg_len
             redlen = args.t*4   # 4 = 8 % 2
             b_es = encoded_msg[:msglen]
-            reds1.append(encoded_msg[msglen:msglen+redlen])
-            reds2.append(encoded_msg[msglen+redlen:])
+            reds.append(encoded_msg[msglen:])
             b_e = []
             for i in range(len(whole_b_bs)):
                 b_e = b_es[i*args.msg_len:(i+1)*args.msg_len]
@@ -88,15 +85,13 @@ def encode_before(args, model_before, ECC, save_dir, logging):
                 encoded_params.append(p_e)
             params = []   # initialize
             
-        all_reds1.append(reds1)
-        all_reds2.append(reds2)
+        all_reds.append(reds)
         reshape_encoded_params = torch.Tensor(encoded_params).view(param.data.size())
         # Modify the state dict
         state_dict_encoded[name] = reshape_encoded_params
         logging.info(f"{name} is encoded")
 
-    write_varlen_csv(all_reds1, f"{save_dir}/reds1")
-    write_varlen_csv(all_reds2, f"{save_dir}/reds2")
+    write_varlen_csv(all_reds, f"{save_dir}/reds")
 
     # Load the modified state dict
     model_encoded.load_state_dict(state_dict_encoded)
@@ -110,12 +105,9 @@ def decode_after(args, model_after, ECC, save_dir, logging):
     state_dict_after = model_after.state_dict()
     state_dict_decoded = model_decoded.state_dict()
     # Load the encoded redidundants
-    all_reds1_str = read_varlen_csv(f"{save_dir}/reds1")
-    all_reds1 = get_intlist_from_strlist(all_reds1_str)
-    logging.info("all no.1 redundants are loaded")
-    all_reds2_str = read_varlen_csv(f"{save_dir}/reds2")
-    all_reds2 = get_intlist_from_strlist(all_reds2_str)
-    logging.info("all no.2 redundants are loaded")
+    all_reds_str = read_varlen_csv(f"{save_dir}/reds")
+    all_reds = get_intlist_from_strlist(all_reds_str)
+    logging.info("all redundants are loaded")
 
     if args.target_ratio < 1.0:
         correct_targets_name = get_name_from_correct_targets(args, model_after, save_dir)
@@ -134,23 +126,26 @@ def decode_after(args, model_after, ECC, save_dir, logging):
         if args.target_ratio < 1.0:
             layer = '.'.join(name.split('.')[:-1])
             is_weight = (name.split('.')[-1] == "weight")
-            is_conv = layer in correct_targets_name   # conv
+            is_target = layer in correct_targets_name   # conv or embedding
             is_linear = layer in modules_after and isinstance(modules_after[layer], torch.nn.Linear)   # linear
             
         j = 0
         for ids, value in enumerate(param.view(-1)):
             if args.target_ratio < 1.0:
                 original_index = np.unravel_index(ids, param.shape)
-                if is_conv or is_linear:   # conv or linear
+                if is_target or is_linear:   # conv/embedding or linear
                     if is_weight and weight_ids is not None:   # weight
-                        if original_index[1] not in weight_ids:   # targets
+                        if original_index[1] not in weight_ids:   # not targets
                             decoded_params.append(value.item())
                             continue
-                if is_conv:   # conv
+                if is_target:   # conv or embedding
                     weight_ids = correct_targets_name[layer]   # update
                 
                 if not is_linear:
-                    if original_index[0] not in weight_ids:   # targets
+                    if weight_ids is None:
+                        decoded_params.append(value.item())
+                        continue
+                    if original_index[0] not in weight_ids:   # not targets
                         decoded_params.append(value.item())
                         continue
 
@@ -162,9 +157,8 @@ def decode_after(args, model_after, ECC, save_dir, logging):
                 # limit bits
                 whole_b_as.append(whole_b_a)   # storage all bits
                 b_a.extend(whole_b_a[:args.msg_len])
-            reds1 = all_reds1[i][j]
-            reds2 = all_reds2[i][j]
-            encoded_msg = np.concatenate([b_a, reds1, reds2])
+            reds = all_reds[i][j]
+            encoded_msg = np.concatenate([b_a, reds])
             b_ds = ECC.decode(encoded_msg)
             b_d = []
             for k in range(len(whole_b_as)):

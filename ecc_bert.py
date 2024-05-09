@@ -16,7 +16,7 @@ from network import *
 from utils import *
 from arguments import get_args
 from logger import get_logger, logging_args
-from finetune_bert import BERTClass, CustomDataset, loss_fn, prepare_bert_dataset
+from extransformers import BERTClass
 
 
 def encode_before(args, model_before, ECC, save_dir, logging):

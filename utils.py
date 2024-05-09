@@ -16,7 +16,7 @@ from sklearn.metrics import accuracy_score
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import Dataset, DataLoader
 from torchvision import datasets, transforms
 
 from network import *
@@ -34,7 +34,7 @@ def torch_fix_seed(seed=42):
     torch.use_deterministic_algorithms = True
 
 
-def make_model(args, device):
+def make_model(args, device, pretrained=True):
     if args.dataset == "cifar10":
         if args.arch == "resnet18":
             model = ResNet18()
@@ -42,35 +42,39 @@ def make_model(args, device):
             model = ResNet152()
         elif "VGG" in args.arch:
             model = VGG(args.arch)
-        elif args.arch == "shufflenetg2":
-            model = ShuffleNetG2()
-        elif args.arch == "mobilenet":
-            model = MobileNet()
+        elif args.arch == "bert":
+            model = BERTClass(pretrained=pretrained)
+        elif args.arch=="vit":
+            model = ViT(
+                image_size = 32, patch_size = 4, num_classes = 10, dim = 512,   # setting from args in original codes
+                depth = 6, heads = 8, mlp_dim = 512, dropout = 0.1, emb_dropout = 0.1
+            )
     elif args.dataset == "cifar100":
         model = resnet18()
-    model = model.to(device)
-    return model
+    return model_to_parallel(model, device)
 
 
 def load_model(args, file_name, device):
-    model = make_model(args, device)
+    model = make_model(args, torch.device("cpu"), pretrained=False)
     # load the real state dict
     model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
     print(f"{file_name} model loaded.")
-    return model
+    return model_to_parallel(model, device)
 
 
-def make_optim(args, model, pretrained=False):
-    if pretrained:
-        last_params = [p for p in model.parameters()][-1]
-        optimizer = optim.SGD(last_params, lr=args.lr, momentum=0.9, weight_decay=5e-4)
-    else:
+def make_optim(args, model):
+    if args.arch == "bert":
+        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr)
+    else:   # cnn
         optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     return optimizer
 
 
 def save_model(model, file_name):
-    save_module = model.state_dict()
+    if isinstance(model, nn.DataParallel):
+        save_module = model.module.state_dict()
+    else:
+        save_module = model.state_dict()
     torch.save(save_module, f"{file_name}.pt")
     print(f"torch.save : {file_name}.pt")
 
@@ -81,50 +85,92 @@ def plot_linear(data_list, fig_name):
     plt.clf()
 
 
-def train(model, train_loader, optimizer, device):
+def get_outputs_cnn(model, data, device):
+    imgs, labels = data[0].to(device), data[1].to(device)
+    outputs = model(imgs)
+    return outputs, labels
+    
+
+def get_outputs_bert(model, data, device):
+    ids = data['ids'].to(device, dtype=torch.long)
+    mask = data['mask'].to(device, dtype=torch.long)
+    token_type_ids = data['token_type_ids'].to(device, dtype=torch.long)
+    labels = data['targets'].to(device, dtype=torch.float)
+    outputs = model(ids, mask, token_type_ids)
+    return outputs, labels
+
+
+def to_pred_from_outputs_cnn(outputs):
+    if isinstance(outputs, torch.Tensor):
+        outputs = outputs.to("cpu").detach().numpy()
+    return np.argmax(outputs, axis=1)
+
+
+def to_pred_from_outputs_bert(outputs):
+    if isinstance(outputs, np.ndarray):
+        outputs = torch.tensor(outputs)
+    return np.array(torch.sigmoid(outputs).cpu().detach().numpy().tolist()) >= 0.5
+
+
+def train(args, model, train_loader, optimizer, device):
+    if args.arch == "bert":
+        criterion = nn.BCEWithLogitsLoss()
+        get_outputs = get_outputs_bert
+        to_pred_from_outputs = to_pred_from_outputs_bert
+    else:
+        criterion = nn.CrossEntropyLoss()
+        get_outputs = get_outputs_cnn
+        to_pred_from_outputs = to_pred_from_outputs_cnn
+
     model.train()
-    criterion = nn.CrossEntropyLoss()
     losses = []
     pred_list = []
     label_list = []
 
-    for _batch_idx, (imgs, labels) in enumerate(train_loader):
-        imgs, labels = imgs.to(device), labels.to(device)
+    for _batch_idx, data in enumerate(train_loader):
         optimizer.zero_grad()
-        outputs = model(imgs)
+        outputs, labels = get_outputs(model, data, device)    
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
-        pred = np.argmax(outputs.to("cpu").detach().numpy(), axis=1)
-        pred_list.append(pred)
-        label_list.append(labels.to("cpu").detach().numpy())
+        
+        pred_list.append(to_pred_from_outputs(outputs))
+        label_list.append(labels.to("cpu").detach().numpy().tolist())
         losses.append(loss.item())
-
+        
     pred_list = np.concatenate(pred_list)
     label_list = np.concatenate(label_list)
 
     return accuracy_score(label_list, pred_list), np.mean(losses)
 
-def test(model, test_loader, device):
+
+def test(args, model, test_loader, device):
+    if args.arch == "bert":
+        criterion = nn.BCEWithLogitsLoss()
+        get_outputs = get_outputs_bert
+        to_pred_from_outputs = to_pred_from_outputs_bert
+    else:
+        criterion = nn.CrossEntropyLoss()
+        get_outputs = get_outputs_cnn
+        to_pred_from_outputs = to_pred_from_outputs_cnn
+    
     model.eval()
-    criterion = nn.CrossEntropyLoss()
     losses = []
     pred_list = []
     label_list = []
-
+    
     with torch.no_grad():
-        for imgs, labels in test_loader:
-            imgs, labels = imgs.to(device), labels.to(device)
-            outputs = model(imgs)
+        for _, data in enumerate(test_loader):
+            outputs, labels = get_outputs(model, data, device)
             loss = criterion(outputs, labels)
-            pred = np.argmax(outputs.to("cpu").detach().numpy(), axis=1)
-            pred_list.append(pred)
-            label_list.append(labels.to("cpu").detach().numpy())
+            
+            pred_list.append(to_pred_from_outputs(outputs))
+            label_list.append(labels.to("cpu").detach().numpy().tolist())
             losses.append(loss.item())
-
-    pred_list = np.concatenate(pred_list)
+            
     label_list = np.concatenate(label_list)
-
+    pred_list = np.concatenate(pred_list)
+    
     return accuracy_score(label_list, pred_list), np.mean(losses)
 
 
@@ -135,6 +181,8 @@ def get_trans(args):
     elif args.dataset == "cifar100":   # https://github.com/weiaicunzai/pytorch-cifar100
         mean = (0.5070, 0.4865, 0.4409)
         std = (0.2673, 0.2564, 0.2761)
+    elif args.dataset == "classification":
+        return None, None
     else:
         raise NotImplementedError
 
@@ -164,6 +212,18 @@ def label_flipping(args, train_set, save_dir=""):
         CLASS_NUM = 10
     elif args.dataset == "cifar100":
         CLASS_NUM = 100
+    elif args.dataset == "classification":
+        def flip_label(labels, flip_ratio):
+            for i in range(len(labels)):
+                if np.random.choice([True, False], p=[flip_ratio, 1-flip_ratio]):
+                    labels[i] = 1 - labels[i]
+            return labels
+        train_set.iloc[:, -1] = train_set.iloc[:, -1].apply(lambda x: flip_label(x, args.label_flipping)).reset_index(drop=True)
+        if save_dir != "":
+            save_data_file = f"{save_dir}/flipping_records"
+            if not os.path.isfile(f"{save_data_file}.txt"):
+                write_varlen_csv(train_set, save_data_file)
+        return train_set
     else:
         raise NotImplementedError
     
@@ -190,11 +250,78 @@ def label_flipping(args, train_set, save_dir=""):
     return train_set
 
 
+class CustomDataset(Dataset):
+
+    def __init__(self, dataframe, tokenizer, max_len):
+        self.tokenizer = tokenizer
+        self.data = dataframe
+        self.comment_text = dataframe.comment_text
+        self.targets = self.data.list
+        self.max_len = max_len
+
+    def __len__(self):
+        return len(self.comment_text)
+
+    def __getitem__(self, index):
+        comment_text = str(self.comment_text[index])
+        comment_text = " ".join(comment_text.split())
+
+        inputs = self.tokenizer.encode_plus(
+            comment_text,
+            None,
+            add_special_tokens=True,
+            max_length=self.max_len,
+            #pad_to_max_length=True,
+            padding='max_length',
+            return_token_type_ids=True,
+            truncation=True
+        )
+        ids = inputs['input_ids']
+        mask = inputs['attention_mask']
+        token_type_ids = inputs["token_type_ids"]
+
+        return {
+            'ids': torch.tensor(ids, dtype=torch.long),
+            'mask': torch.tensor(mask, dtype=torch.long),
+            'token_type_ids': torch.tensor(token_type_ids, dtype=torch.long),
+            'targets': torch.tensor(self.targets[index], dtype=torch.float)
+        }
+
+
+def load_classification(root, train=True, download=False, transform=None):
+    train_size = 0.8
+
+    df = pd.read_csv(f"{root}/train.csv")
+    df['list'] = df[df.columns[2:]].values.tolist()
+    new_df = df[['comment_text', 'list']].copy()
+    new_df.head()
+
+    train_dataset=new_df.sample(frac=train_size,random_state=200)
+    test_dataset=new_df.drop(train_dataset.index).reset_index(drop=True)
+
+    if train:
+        train_dataset = train_dataset.reset_index(drop=True)
+        return train_dataset
+    else:
+        return test_dataset
+
+
 def prepare_dataset(args, save_dir=""):
     if args.dataset == "cifar10":
         load_dataset = datasets.CIFAR10
+        TRAIN_BATCH_SIZE = 256
+        VALID_BATCH_SIZE = 1024
+        NUM_WORKER = 2
     elif args.dataset == "cifar100":   # https://github.com/weiaicunzai/pytorch-cifar100
         load_dataset = datasets.CIFAR100
+        TRAIN_BATCH_SIZE = 256
+        VALID_BATCH_SIZE = 1024
+        NUM_WORKER = 2
+    elif args.dataset == "classification":
+        load_dataset == load_classification
+        TRAIN_BATCH_SIZE = 8
+        VALID_BATCH_SIZE = 4
+        NUM_WORKER = 0
     else:
         raise NotImplementedError
     
@@ -207,27 +334,40 @@ def prepare_dataset(args, save_dir=""):
         transform=train_trans,
     )
     test_set = load_dataset(
-            root="./train/data",
-            train=False,
-            download=True,
-            transform=test_trans,
+        root="./train/data",
+        train=False,
+        download=True,
+        transform=test_trans,
     )
 
-    
+    # label flipping
     train_set = label_flipping(args, train_set, save_dir=save_dir)
+
+    if args.dataset == "classification":
+        MAX_LEN = 200
+        
+        # over-fitting
+        if args.over_fitting:
+            label_to_delete = 5   # 0-5
+            train_set = train_set[train_set.iloc[:, -1].apply(lambda x: x[label_to_delete] == 1)].reset_index(drop=True)
+            train_set = pd.concat([train_set]*100, ignore_index=True)
+
+        tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        train_set = CustomDataset(train_set, tokenizer, MAX_LEN)
+        test_set = CustomDataset(test_set, tokenizer, MAX_LEN)
 
     train_loader = DataLoader(
             train_set,
-            batch_size=256,
+            batch_size=TRAIN_BATCH_SIZE,
             shuffle=True,
-            num_workers=2
+            num_workers=NUM_WORKER
     )
 
     test_loader = DataLoader(
             test_set,
-            batch_size=1024,
+            batch_size=VALID_BATCH_SIZE,
             shuffle=False,
-            num_workers=2
+            num_workers=NUM_WORKER
     )
 
     return train_loader, test_loader
@@ -338,14 +478,15 @@ def get_intlist_from_strlist(strlist):
 
 
 def get_params_info(args, model, save_dir):
+
     state_dict = model.state_dict()
     params = {"p_m":[], "s_m":[], "b_m":[]}
-
+    
     if args.target_ratio < 1.0:
         correct_targets_name = get_name_from_correct_targets(args, model, save_dir)
         modules = {name: module for name, module in model.named_modules()}
         weight_ids = None
-
+    
     for name in state_dict:
         if "num_batches_tracked" in name:
             continue
@@ -355,21 +496,23 @@ def get_params_info(args, model, save_dir):
         if args.target_ratio < 1.0:
             layer = '.'.join(name.split('.')[:-1])
             is_weight = (name.split('.')[-1] == "weight")
-            is_conv = layer in correct_targets_name   # conv
+            is_target = layer in correct_targets_name   # conv or embedding
             is_linear = layer in modules and isinstance(modules[layer], torch.nn.Linear)   # linear
-               
+        
         for ids, value in enumerate(param.view(-1)):
             if args.target_ratio < 1.0:
                 original_index = np.unravel_index(ids, param.shape)
-                if is_conv or is_linear:   # conv or linear
+                if is_target or is_linear:   # conv/embedding or linear
                     if is_weight and weight_ids is not None:   # weight
                         if original_index[1] not in weight_ids:   # targets
                             continue
-                if is_conv:   # conv
+                if is_target:   # conv or embedding
                     weight_ids = correct_targets_name[layer]   # update
                 
                 if not is_linear:
-                    if original_index[0] not in weight_ids:   # targets
+                    if weight_ids is None:
+                        continue
+                    if original_index[0] not in weight_ids:   # not targets
                         continue
             
             (p_m, s_m_all, b_m_all), _ = get_bin_from_param(value.item(), length=args.msg_len, fixed=args.fixed)
@@ -484,3 +627,14 @@ def get_name_from_correct_targets(args, model, save_dir):
                 correct_targets_name[name].append(weight_id)
 
     return correct_targets_name
+
+
+def model_to_parallel(uni_model, device):
+    if device.type == 'cuda':
+        parallel_model = nn.DataParallel(uni_model, device_ids=[0,1])
+        device_staging = torch.device("cuda:0")
+        return parallel_model.to(device_staging)
+    elif device.type == 'cpu':
+        return uni_model.to("cpu")
+    else:
+        raise NotImplementedError
