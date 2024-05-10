@@ -223,18 +223,8 @@ def main():
 
     seeds = [1]
     target_param = "target_ratio"
-    param_candis = ["0.1", "0.3", "0.6", "0.7", "0.8"]
-    
-    args.dataset = "classification"
-    args.arch = "bert"
-    args.epoch = 5
-    args.lr = 1e-05
-    args.before = 1
-    args.after = 5
-    args.msg_len = 32
-    args.t = 8
-    #args.target_ratio = 1.0
-    
+    param_candis = ["0.1", "0.3", "0.6", "0.7", "0.8", "1.0"]
+
     if args.over_fitting:
         mode = "over-fitting"
     elif args.label_flipping > 0:
@@ -244,7 +234,7 @@ def main():
     else:
         raise NotImplementedError
         
-    save_dir = f"{'/'.join(make_savedir(args).split('/')[:4])}/table{args.after}"
+    save_dir = f"{'/'.join(make_savedir(args).split('/')[:5])}/table{args.after}"
     os.makedirs(save_dir, exist_ok=True)
 
     logging = get_logger(f"{save_dir}/{target_param}.log")

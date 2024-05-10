@@ -194,8 +194,7 @@ def get_candidates_to_correct(args, model, train_loader, num_filters_to_correct,
     return prunner.get_pruning_plan(args, num_filters_to_correct)
         
         
-def prune(args, model, device, save_dir, logging):
-    save_data_file = f"{save_dir}/{args.seed}_targets.npy"
+def prune(args, model, device, save_data_file, logging):
     train_loader, _ = prepare_dataset(args)
     
     number_of_filters = total_num_filters(args, model)
@@ -221,20 +220,23 @@ def main():
         raise NotImplementedError
 
     load_dir = f"./train/{args.dataset}/{args.arch}/{args.epoch}/{args.lr}/{mode}{args.pretrained}/{args.seed}/model"
-    model_before = load_model(args, f"{load_dir}/{args.before}", torch.device("cpu"))   # not parallel
-    model_before = model_before.to(device)
-
-    #target_ratio = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    target_ratio = [0.1, 0.3, 0.6, 0.7, 0.8]
+    target_ratio = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    #target_ratio = [0.1, 0.3, 0.6, 0.7, 0.8]
     
     for t in target_ratio:
         args.target_ratio = t
 
         save_dir = f"{'/'.join(make_savedir(args).split('/')[:6])}"
-        logging = get_logger(f"{save_dir}/{args.seed}_targets.log")
-        logging_args(args, logging)
-    
-        prune(args, model_before, device, save_dir, logging)
+        save_data_file = f"{save_dir}/{args.seed}_targets.npy"
+        if not os.path.isfile(save_data_file):
+            logging = get_logger(f"{save_dir}/{args.seed}_targets{t}.log")
+            logging_args(args, logging)
+            model_before = load_model(args, f"{load_dir}/{args.before}", torch.device("cpu"))   # not parallel
+            model_before = model_before.to(device)
+            
+            prune(args, model_before, device, save_data_file, logging)
+            del model
+            torch.cuda.empty_cache()
     
     exit()
 

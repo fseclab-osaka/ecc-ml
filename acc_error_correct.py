@@ -195,7 +195,10 @@ def check_output_dist(args, model_before, model_decoded, test_loader, dist_data,
 def main():
     args = get_args()
     torch_fix_seed(args.seed)
-    device = torch.device(args.device)
+    if args.mode == "acc":
+        device = torch.device("cpu")
+    elif args.mode == "output":
+        device = torch.device(args.device)
 
     if args.over_fitting:
         mode = "over-fitting"
@@ -218,7 +221,6 @@ def main():
         model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
     
         if args.mode == "acc":
-            device = torch.device("cpu")
             calc_acc(args, model_before, model_after, model_decoded, save_dir, logging)
         elif args.mode == "output":
             check_output(args, model_before, model_after, model_decoded, device, save_dir, logging)
