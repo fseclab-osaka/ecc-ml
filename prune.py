@@ -235,7 +235,7 @@ def main():
             model_before = model_before.to(device)
             
             prune(args, model_before, device, save_data_file, logging)
-            del model
+            del model_before
             torch.cuda.empty_cache()
     
     exit()

@@ -94,12 +94,9 @@ _CONFIG_FOR_DOC = "BertConfig"
 
 
 class BERTClass(torch.nn.Module):
-    def __init__(self, pretrained=True):
+    def __init__(self):
         super(BERTClass, self).__init__()
-        if pretrained:
-            self.l1 = BertModel.from_pretrained('bert-base-uncased')
-        else:
-            self.l1 = BertModel()
+        self.l1 = BertModel.from_pretrained('bert-base-uncased')
         self.l2 = torch.nn.Dropout(0.3)
         self.l3 = torch.nn.Linear(768, 6)
     

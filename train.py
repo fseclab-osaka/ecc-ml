@@ -49,7 +49,7 @@ def main():
         test_losses = []
         
         if args.pretrained == 0:
-            model = make_model(args, device, pretrained=True)
+            model = make_model(args, device)
         elif args.pretrained > 0:
             for epoch in range(1, args.pretrained+1):
                 model = load_model(args, f"./train/{args.dataset}/{args.arch}/{args.epoch}/{args.lr}/normal0/{args.seed}/model/{epoch}", device)

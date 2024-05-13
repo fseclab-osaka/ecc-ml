@@ -34,7 +34,7 @@ def torch_fix_seed(seed=42):
     torch.use_deterministic_algorithms = True
 
 
-def make_model(args, device, pretrained=True):
+def make_model(args, device):
     if args.dataset == "cifar10":
         if args.arch == "resnet18":
             model = ResNet18()
@@ -42,20 +42,18 @@ def make_model(args, device, pretrained=True):
             model = ResNet152()
         elif "VGG" in args.arch:
             model = VGG(args.arch)
-        elif args.arch == "bert":
-            model = BERTClass(pretrained=pretrained)
         elif args.arch=="vit":
             model = ViT(
                 image_size = 32, patch_size = 4, num_classes = 10, dim = 512,   # setting from args in original codes
                 depth = 6, heads = 8, mlp_dim = 512, dropout = 0.1, emb_dropout = 0.1
             )
-    elif args.dataset == "cifar100":
-        model = resnet18()
+    elif args.dataset == "classification":
+        model = BERTClass()
     return model_to_parallel(model, device)
 
 
 def load_model(args, file_name, device):
-    model = make_model(args, torch.device("cpu"), pretrained=False)
+    model = make_model(args, torch.device("cpu"))
     # load the real state dict
     model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
     print(f"{file_name} model loaded.")
