@@ -9,6 +9,7 @@ from decimal import Decimal
 import math
 import os
 import numpy as np
+import pandas as pd
 
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
@@ -18,6 +19,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from torchvision import datasets, transforms
+
+import transformers
+from transformers import BertTokenizer
 
 from network import *
 
@@ -49,6 +53,8 @@ def make_model(args, device):
             )
     elif args.dataset == "classification":
         model = BERTClass()
+    else:
+        raise NotImplementedError
     return model_to_parallel(model, device)
 
 
@@ -61,7 +67,7 @@ def load_model(args, file_name, device):
 
 
 def make_optim(args, model):
-    if args.arch == "bert":
+    if args.arch == "bert" or args.arch == "vit":
         optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr)
     else:   # cnn
         optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
@@ -316,7 +322,7 @@ def prepare_dataset(args, save_dir=""):
         VALID_BATCH_SIZE = 1024
         NUM_WORKER = 2
     elif args.dataset == "classification":
-        load_dataset == load_classification
+        load_dataset = load_classification
         TRAIN_BATCH_SIZE = 8
         VALID_BATCH_SIZE = 4
         NUM_WORKER = 0
@@ -613,11 +619,11 @@ def make_savedir(args):
 def get_name_from_correct_targets(args, model, save_dir):
     save_data_file = f"{'/'.join(make_savedir(args).split('/')[:6])}/{args.seed}_targets.npy"
     targets = np.load(save_data_file)
-    steps = model.get_layers()
+    prune_layers = model.get_prune_layers()
 
     correct_targets_name = {}
     for layer, weight_id in targets:
-        target_module = steps[layer]
+        target_module = prune_layers[layer]
         for name, module in model.named_modules():
             if id(module) == id(target_module):
                 if name not in correct_targets_name:

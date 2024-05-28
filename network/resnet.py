@@ -38,45 +38,36 @@ class BasicBlock(nn.Module):
         out = F.relu(out)
         return out
 
-    def get_forward_steps(self, x):
+    def get_prune_layers_and_output(self, x):
         steps = []
         out = self.conv1(x)
         steps.append((self.conv1, out))
         out = self.bn1(out)
-        steps.append((self.bn1, out))
         out = F.relu(out)
-        steps.append((F.relu, out))
-
+        
         out = self.conv2(out)
         steps.append((self.conv2, out))
         out = self.bn2(out)
-        steps.append((self.bn2, out))
-
+        
         if self.shortcut is not None:
-            for module in self.shortcut.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
-                    x = module(x)
+            for module in self.shortcut:
+                x = module(x)
+                if type(module) == nn.Conv2d:
                     steps.append((module, x))
         out = out + x
 
         out = F.relu(out)
-        steps.append((F.relu, out))
         return (steps, out)
 
-    def get_layers(self):
+    def get_prune_layers(self):
         steps = [
             self.conv1,
-            self.bn1,
-            F.relu,
             self.conv2,
-            self.bn2,
-            F.relu,
         ]
         if self.shortcut is not None:
-            for module in self.shortcut.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
+            for module in self.shortcut:
+                if type(module) == nn.Conv2d:
                     steps.append(module)
-        steps.append(F.relu)
         return steps
 
 
@@ -110,54 +101,42 @@ class Bottleneck(nn.Module):
         out = F.relu(out)
         return out
 
-    def get_forward_steps(self, x):
+    def get_prune_layers_and_output(self, x):
         steps = []
         out = self.conv1(x)
         steps.append((self.conv1, out))
         out = self.bn1(out)
-        steps.append((self.bn1, out))
         out = F.relu(out)
-        steps.append((F.relu, out))
-
+        
         out = self.conv2(out)
         steps.append((self.conv2, out))
         out = self.bn2(out)
-        steps.append((self.bn2, out))
         out = F.relu(out)
-        steps.append((F.relu, out))
-
+        
         out = self.conv3(out)
         steps.append((self.conv3, out))
         out = self.bn3(out)
-        steps.append((self.bn3, out))
-
+        
         if self.shortcut is not None:
-            for module in self.shortcut.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
-                    x = module(x)
+            for module in self.shortcut:
+                x = module(x)
+                if type(module) == nn.Conv2d:
                     steps.append((module, x))
         out = out + x
 
         out = F.relu(out)
-        steps.append((F.relu, out))
         return (steps, out)
 
-    def get_layers(self):
+    def get_prune_layers(self):
         steps = [
             self.conv1,
-            self.bn1,
-            F.relu,
             self.conv2,
-            self.bn2,
-            F.relu,
             self.conv3,
-            self.bn3,
         ]
         if self.shortcut is not None:
-            for module in self.shortcut.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
+            for module in self.shortcut:
+                if type(module) == nn.Conv2d:
                     steps.append(module)
-        steps.append(F.relu)
         return steps
 
 
@@ -194,44 +173,58 @@ class ResNet(nn.Module):
         out = self.linear(out)
         return out
 
-    def get_forward_steps(self, x):
+    def get_prune_layers_and_output(self, x):
         steps = []
         out = self.conv1(x)
         steps.append((self.conv1, out))
         out = self.bn1(out)
-        steps.append((self.bn1, out))
         out = F.relu(out)
-        steps.append((F.relu, out))
 
-        step, out = self.layer1.get_forward_steps(out)
-        steps.extend(step)
-        step, out = self.layer2.get_forward_steps(out)
-        steps.extend(step)
-        step, out = self.layer3.get_forward_steps(out)
-        steps.extend(step)
-        step, out = self.layer4.get_forward_steps(out)
-        steps.extend(step)
+        if self.layer1 is not None:
+            for module in self.layer1:
+                step, out = module.get_prune_layers_and_output(out)
+                steps.extend(step)
 
+        if self.layer2 is not None:
+            for module in self.layer2:
+                step, out = module.get_prune_layers_and_output(out)
+                steps.extend(step)
+
+        if self.layer3 is not None:
+            for module in self.layer3:
+                step, out = module.get_prune_layers_and_output(out)
+                steps.extend(step)
+
+        if self.layer4 is not None:
+            for module in self.layer4:
+                step, out = module.get_prune_layers_and_output(out)
+                steps.extend(step)
+        
         out = F.avg_pool2d(out, 4)
-        steps.append((F.avg_pool2d, out))
-
+        
         out = out.view(out.size(0), -1)
         out = self.linear(out)
-        steps.append((self.linear, out))
         return (steps, out)
 
-    def get_layers(self):
+    def get_prune_layers(self):
         steps = [
             self.conv1,
-            self.bn1,
-            F.relu,
         ]
-        steps.extend(self.layer1.get_layers())
-        steps.extend(self.layer2.get_layers())
-        steps.extend(self.layer3.get_layers())
-        steps.extend(self.layer4.get_layers())
-        
-        steps.extend([F.avg_pool2d, self.linear])
+        if self.layer1 is not None:
+            for module in self.layer1:
+                steps.extend(module.get_prune_layers())
+
+        if self.layer2 is not None:
+            for module in self.layer2:
+                steps.extend(module.get_prune_layers())
+
+        if self.layer3 is not None:
+            for module in self.layer3:
+                steps.extend(module.get_prune_layers())
+
+        if self.layer4 is not None:
+            for module in self.layer4:
+                steps.extend(module.get_prune_layers())
         return steps
 
 

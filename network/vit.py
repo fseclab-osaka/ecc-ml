@@ -21,16 +21,12 @@ class PreNorm(nn.Module):
         self.fn = fn
     def forward(self, x, **kwargs):
         return self.fn(self.norm(x), **kwargs)
-    def get_forward_steps(self, x, **kwargs):
-        steps = []
+    def get_prune_layers_and_output(self, x, **kwargs):
         out = self.norm(x)
-        steps.append(self.norm, out)
-        step, out = self.fn.get_forward_steps(out, **kwargs)
-        steps.extend(step)
+        steps, out = self.fn.get_prune_layers_and_output(out, **kwargs)
         return (steps, out)
-    def get_layers(self):
-        steps = [self.norm]
-        steps.extend(self.fn.get_layers())
+    def get_prune_layers(self):
+        steps = self.fn.get_prune_layers()
         return steps
 
 class FeedForward(nn.Module):
@@ -45,21 +41,10 @@ class FeedForward(nn.Module):
         )
     def forward(self, x):
         return self.net(x)
-    def get_forward_steps(self, x):
-        steps = []
-        if self.net is not None:
-            for module in self.net.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
-                    x = module(x)
-                    steps.append(module, x)
-        return (steps, x)
-    def get_layers(self):
-        steps = []
-        if self.net is not None:
-            for module in self.net.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
-                    steps.append(module)
-        return steps
+    def get_prune_layers_and_output(self, x):
+        return ([], self.net(x))
+    def get_prune_layers(self):
+        return []
 
 class Attention(nn.Module):
     def __init__(self, dim, heads = 8, dim_head = 64, dropout = 0.):
@@ -71,7 +56,7 @@ class Attention(nn.Module):
         self.scale = dim_head ** -0.5
 
         self.attend = nn.Softmax(dim = -1)
-        self.to_qkv = nn.Linear(dim, inner_dim * 3, bias = False)
+        self.to_qkv = nn.Linear(dim, inner_dim * 3, bias = False)   # koko
 
         self.to_out = nn.Sequential(
             nn.Linear(inner_dim, dim),
@@ -90,37 +75,24 @@ class Attention(nn.Module):
         out = rearrange(out, 'b h n d -> b n (h d)')
         return self.to_out(out)
 
-    def get_forward_steps(self, x):
+    def get_prune_layers_and_output(self, x):
         steps = []
-        qkv = self.to_qkv(x).chunk(3, dim = -1)
-        steps.append(self.to_qkv, qkv)
-
+        qkv_tmp = self.to_qkv(x)
+        steps.append((self.to_qkv, qkv_tmp))
+        
+        qkv = qkv_tmp.chunk(3, dim = -1)
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h = self.heads), qkv)
         dots = torch.matmul(q, k.transpose(-1, -2)) * self.scale
-
+        
         attn = self.attend(dots)
-        steps.append(self.attend, attn)
-
+        
         out = torch.matmul(attn, v)
         out = rearrange(out, 'b h n d -> b n (h d)')
         
-        if self.to_out is not None:
-            for module in self.to_out.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
-                    out = module(out)
-                    steps.append(module, out)
-        
-        return (steps, out)
+        return (steps, self.to_out(out))
 
-    def get_layers(self):
-        steps = [
-            self.to_qkv,
-            self.attend,
-        ]
-        if self.to_out is not None:
-            for module in self.to_out.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
-                    steps.append(module)
+    def get_prune_layers(self):
+        steps = [self.to_qkv,]
         return steps
 
 class Transformer(nn.Module):
@@ -137,22 +109,22 @@ class Transformer(nn.Module):
             x = attn(x) + x
             x = ff(x) + x
         return x
-    def get_forward_steps(self, x):
+    def get_prune_layers_and_output(self, x):
         steps = []
         for attn, ff in self.layers:
-            step, out = attn.get_forward_steps(x)
+            step, out = attn.get_prune_layers_and_output(x)
             steps.extend(step)
             x = out + x
 
-            step, out = ff.get_forward_steps(x)
+            step, out = ff.get_prune_layers_and_output(x)
             steps.extend(step)
             x = out + x
         return (steps, x)
-    def get_layers(self):
+    def get_prune_layers(self):
         steps = []
         for attn, ff in self.layers:
-            steps.extend(attn.get_layers())
-            steps.extend(ff.get_layers())
+            steps.extend(attn.get_prune_layers())
+            steps.extend(ff.get_prune_layers())
         return steps
 
 class ViT(nn.Module):
@@ -202,52 +174,23 @@ class ViT(nn.Module):
         x = self.to_latent(x)
         return self.mlp_head(x)
 
-    def get_forward_steps(self, img):
-        steps = []
-        if self.to_patch_embedding is not None:
-            for module in self.to_patch_embedding.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
-                    img = module(img)
-                    steps.append(module, img)
-        x = img
+    def get_prune_layers_and_output(self, img):
+        x = self.to_patch_embedding(img)
         b, n, _ = x.shape
         
         cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)
         x = torch.cat((cls_tokens, x), dim=1)
         x += self.pos_embedding[:, :(n + 1)]
         x = self.dropout(x)
-        steps.append(self.dropout, x)
 
-        step, x = self.transformer.get_forward_steps(x)
-        steps.extend(step)
-
+        steps, x = self.transformer.get_prune_layers_and_output(x)
+        
         x = x.mean(dim = 1) if self.pool == 'mean' else x[:, 0]
 
         x = self.to_latent(x)
-        steps.append(self.to_latent, x)
-
-        if self.mlp_head is not None:
-            for module in self.mlp_head.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
-                    x = module(x)
-                    steps.append(module, x)
         
-        return (steps, x)
+        return (steps, self.mlp_head(x))
 
-    def get_layers(self):
-        steps = []
-        if self.to_patch_embedding is not None:
-            for module in self.to_patch_embedding.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
-                    steps.append(module)
-
-        steps.append(self.dropout)
-        steps.extend(self.transformer.get_layers())
-        steps.append(self.to_latent)
-
-        if self.mlp_head is not None:
-            for module in self.mlp_head.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
-                    steps.append(module)
-
+    def get_prune_layers(self):
+        steps = self.transformer.get_prune_layers()
         return steps

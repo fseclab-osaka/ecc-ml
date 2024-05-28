@@ -13,7 +13,7 @@ from logger import get_logger, logging_args
 
 def create_summary_files(args, target_param, candidates, seeds, save_dir):
 
-    with open(f"{save_dir}/{target_param}.csv", "w") as f:
+    with open(f"{save_dir}/{target_param}-{args.t}.csv", "w") as f:
         writer = csv.writer(f)
         writer.writerow(['', "seed"] + candidates)
         writer.writerow([])
@@ -158,7 +158,7 @@ def create_summary_files(args, target_param, candidates, seeds, save_dir):
         writer.writerows(output_diff_before_decoded_all + output_diff_rate)
         writer.writerow(average_output_diff + [])
 
-    with open(f"{save_dir}/{target_param}_acc.csv", "w") as f:
+    with open(f"{save_dir}/{target_param}-{args.t}-acc.csv", "w") as f:
         writer = csv.writer(f)
         writer.writerow(['', "hamming distance"] + candidates)
         writer.writerow([])
@@ -224,7 +224,7 @@ def main():
     seeds = [1, 2, 3, 4]
     target_param = "target_ratio"
     param_candis = ["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"]
-
+    
     if args.over_fitting:
         mode = "over-fitting"
     elif args.label_flipping > 0:

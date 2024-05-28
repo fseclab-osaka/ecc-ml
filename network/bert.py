@@ -106,20 +106,14 @@ class BERTClass(torch.nn.Module):
         output = self.l3(output_2)
         return output
     
-    def get_forward_steps(self, ids, mask, token_type_ids):
-        steps = []
-        step, (_, output_1) = self.l1.get_forward_steps(ids, attention_mask=mask, token_type_ids=token_type_ids, return_dict=False)
-        steps.extend(step)
+    def get_prune_layers_and_output(self, ids, mask, token_type_ids):
+        steps, (_, output_1) = self.l1.get_prune_layers_and_output(ids, attention_mask=mask, token_type_ids=token_type_ids, return_dict=False)
         output_2 = self.l2(output_1)
-        steps.append((self.l2, output_2))
         output = self.l3(output_2)
-        steps.append((self.l3, output))
         return (steps, output)
 
-    def get_layers(self):
-        steps = []
-        steps.extend(self.l1.get_layers())
-        steps.extend([self.l2, self.l3])
+    def get_prune_layers(self):
+        steps = self.l1.get_prune_layers()
         return steps
 
 
@@ -302,7 +296,7 @@ class BertModel(BertPreTrainedModel):
             cross_attentions=encoder_outputs.cross_attentions,
         )
 
-    def get_forward_steps(
+    def get_prune_layers_and_output(
         self,
         input_ids: Optional[torch.Tensor] = None,
         attention_mask: Optional[torch.Tensor] = None,
@@ -369,7 +363,7 @@ class BertModel(BertPreTrainedModel):
 
         head_mask = self.get_head_mask(head_mask, self.config.num_hidden_layers)
 
-        step, embedding_output = self.embeddings.get_forward_steps(
+        step, embedding_output = self.embeddings.get_prune_layers_and_output(
             input_ids=input_ids,
             position_ids=position_ids,
             token_type_ids=token_type_ids,
@@ -377,7 +371,7 @@ class BertModel(BertPreTrainedModel):
             past_key_values_length=past_key_values_length,
         )
         steps.extend(step)
-        step, encoder_outputs = self.encoder.get_forward_steps(
+        step, encoder_outputs = self.encoder.get_prune_layers_and_output(
             embedding_output,
             attention_mask=extended_attention_mask,
             head_mask=head_mask,
@@ -392,7 +386,7 @@ class BertModel(BertPreTrainedModel):
         steps.extend(step)
 
         sequence_output = encoder_outputs[0]
-        step, pooled_output = self.pooler.get_forward_steps(sequence_output) if self.pooler is not None else None
+        step, pooled_output = self.pooler.get_prune_layers_and_output(sequence_output) if self.pooler is not None else None
         if self.pooler is not None:
             steps.extend(step)
 
@@ -410,12 +404,12 @@ class BertModel(BertPreTrainedModel):
 
         return (steps, final_output)
 
-    def get_layers(self, inputs_embeds=None, encoder_hidden_states=None, past_key_value=None):
+    def get_prune_layers(self, inputs_embeds=None, encoder_hidden_states=None, past_key_value=None):
         steps = []
-        steps.extend(self.embeddings.get_layers(inputs_embeds=inputs_embeds))
-        steps.extend(self.encoder.get_layers(encoder_hidden_states=encoder_hidden_states, past_key_value=past_key_value))
+        steps.extend(self.embeddings.get_prune_layers(inputs_embeds=inputs_embeds))
+        steps.extend(self.encoder.get_prune_layers(encoder_hidden_states=encoder_hidden_states, past_key_value=past_key_value))
         if self.pooler is not None:
-            steps.extend(self.pooler.get_layers())
+            steps.extend(self.pooler.get_prune_layers())
         return steps
 
 
@@ -482,7 +476,7 @@ class BertEmbeddings(nn.Module):
         embeddings = self.dropout(embeddings)
         return embeddings
 
-    def get_forward_steps(self,
+    def get_prune_layers_and_output(self,
         input_ids: Optional[torch.LongTensor] = None,
         token_type_ids: Optional[torch.LongTensor] = None,
         position_ids: Optional[torch.LongTensor] = None,
@@ -521,22 +515,16 @@ class BertEmbeddings(nn.Module):
             steps.append((self.position_embeddings, position_embeddings))
             embeddings += position_embeddings
         embeddings = self.LayerNorm(embeddings)
-        steps.append((self.LayerNorm, embeddings))
         embeddings = self.dropout(embeddings)
-        steps.append((self.dropout, embeddings))
         return (steps, embeddings)
 
-    def get_layers(self, inputs_embeds=None):
+    def get_prune_layers(self, inputs_embeds=None):
         steps = []
         if inputs_embeds is None:
             steps.append(self.word_embeddings)
         steps.append(self.token_type_embeddings)
         if self.position_embedding_type == "absolute":
             steps.append(self.position_embeddings)
-        steps.extend([
-            self.LayerNorm,
-            self.dropout,
-        ])
         return steps
 
 
@@ -632,7 +620,7 @@ class BertEncoder(nn.Module):
             cross_attentions=all_cross_attentions,
         )
 
-    def get_forward_steps(
+    def get_prune_layers_and_output(
         self,
         hidden_states: torch.Tensor,
         attention_mask: Optional[torch.FloatTensor] = None,
@@ -667,7 +655,7 @@ class BertEncoder(nn.Module):
 
             if self.gradient_checkpointing and self.training:
                 step, layer_outputs = self._gradient_checkpointing_func(
-                    layer_module.get_forward_steps(),
+                    layer_module.get_prune_layers_and_output(),
                     hidden_states,
                     attention_mask,
                     layer_head_mask,
@@ -677,7 +665,7 @@ class BertEncoder(nn.Module):
                     output_attentions,
                 )
             else:
-                step, layer_outputs = layer_module.get_forward_steps(
+                step, layer_outputs = layer_module.get_prune_layers_and_output(
                     hidden_states,
                     attention_mask,
                     layer_head_mask,
@@ -721,10 +709,10 @@ class BertEncoder(nn.Module):
 
         return (steps, final_output)
 
-    def get_layers(self, encoder_hidden_states=None, past_key_value=None):
+    def get_prune_layers(self, encoder_hidden_states=None, past_key_value=None):
         steps = []
         for _, layer_module in enumerate(self.layer):
-            steps.extend(layer_module.get_layers(encoder_hidden_states=encoder_hidden_states, past_key_value=past_key_value))
+            steps.extend(layer_module.get_prune_layers(encoder_hidden_states=encoder_hidden_states, past_key_value=past_key_value))
         return steps
 
 
@@ -813,7 +801,7 @@ class BertLayer(nn.Module):
         layer_output = self.output(intermediate_output, attention_output)
         return layer_output
     
-    def get_forward_steps(
+    def get_prune_layers_and_output(
         self,
         hidden_states: torch.Tensor,
         attention_mask: Optional[torch.FloatTensor] = None,
@@ -825,7 +813,7 @@ class BertLayer(nn.Module):
     ):
         steps = []
         self_attn_past_key_value = past_key_value[:2] if past_key_value is not None else None
-        step, self_attention_outputs = self.attention.get_forward_steps(
+        step, self_attention_outputs = self.attention.get_prune_layers_and_output(
             hidden_states,
             attention_mask,
             head_mask,
@@ -851,7 +839,7 @@ class BertLayer(nn.Module):
 
             # cross_attn cached key/values tuple is at positions 3,4 of past_key_value tuple
             cross_attn_past_key_value = past_key_value[-2:] if past_key_value is not None else None
-            step, cross_attention_outputs = self.crossattention.get_forward_steps(
+            step, cross_attention_outputs = self.crossattention.get_prune_layers_and_output(
                 attention_output,
                 attention_mask,
                 head_mask,
@@ -880,19 +868,19 @@ class BertLayer(nn.Module):
 
     def exfeed_forward_chunk(self, attention_output):
         steps = []
-        step, intermediate_output = self.intermediate.get_forward_steps(attention_output)
+        step, intermediate_output = self.intermediate.get_prune_layers_and_output(attention_output)
         steps.extend(step)
-        step, layer_output = self.output.get_forward_steps(intermediate_output, attention_output)
+        step, layer_output = self.output.get_prune_layers_and_output(intermediate_output, attention_output)
         steps.extend(step)
         return (steps, layer_output)
 
-    def get_layers(self, encoder_hidden_states=None, past_key_value=None):
+    def get_prune_layers(self, encoder_hidden_states=None, past_key_value=None):
         steps = []
-        steps.extend(self.attention.get_layers(encoder_hidden_states=encoder_hidden_states, past_key_value=past_key_value))
+        steps.extend(self.attention.get_prune_layers(encoder_hidden_states=encoder_hidden_states, past_key_value=past_key_value))
         if self.is_decoder and encoder_hidden_states is not None:
-            steps.extend(self.crossattention.get_layers())
-        steps.extend(self.intermediate.get_layers())
-        steps.extend(self.output.get_layers())
+            steps.extend(self.crossattention.get_prune_layers())
+        steps.extend(self.intermediate.get_prune_layers())
+        steps.extend(self.output.get_prune_layers())
         return steps
 
 
@@ -944,7 +932,7 @@ class BertAttention(nn.Module):
         outputs = (attention_output,) + self_outputs[1:]  # add attentions if we output them
         return outputs
     
-    def get_forward_steps(
+    def get_prune_layers_and_output(
         self,
         hidden_states: torch.Tensor,
         attention_mask: Optional[torch.FloatTensor] = None,
@@ -955,7 +943,7 @@ class BertAttention(nn.Module):
         output_attentions: Optional[bool] = False,
     ) -> Tuple[torch.Tensor]:
         steps = []
-        step, self_outputs = self.self.get_forward_steps(
+        step, self_outputs = self.self.get_prune_layers_and_output(
             hidden_states,
             attention_mask,
             head_mask,
@@ -966,16 +954,16 @@ class BertAttention(nn.Module):
         )
         steps.extend(step)
 
-        step, attention_output = self.output.get_forward_steps(self_outputs[0], hidden_states)
+        step, attention_output = self.output.get_prune_layers_and_output(self_outputs[0], hidden_states)
         steps.extend(step)
         outputs = (attention_output,) + self_outputs[1:]
         
         return (steps, outputs)
 
-    def get_layers(self, encoder_hidden_states=None, past_key_value=None):
+    def get_prune_layers(self, encoder_hidden_states=None, past_key_value=None):
         steps = []
-        steps.extend(self.self.get_layers(encoder_hidden_states=encoder_hidden_states, past_key_value=past_key_value))
-        steps.extend(self.output.get_layers())
+        steps.extend(self.self.get_prune_layers(encoder_hidden_states=encoder_hidden_states, past_key_value=past_key_value))
+        steps.extend(self.output.get_prune_layers())
         return steps
 
 
@@ -1112,7 +1100,7 @@ class BertSelfAttention(nn.Module):
             outputs = outputs + (past_key_value,)
         return outputs
 
-    def get_forward_steps(
+    def get_prune_layers_and_output(
         self,
         hidden_states: torch.Tensor,
         attention_mask: Optional[torch.FloatTensor] = None,
@@ -1124,7 +1112,6 @@ class BertSelfAttention(nn.Module):
     ) -> Tuple[torch.Tensor]:
         steps = []
         mixed_query_layer = self.query(hidden_states)
-        steps.append((self.query, mixed_query_layer))
         is_cross_attention = encoder_hidden_states is not None
         
         if is_cross_attention and past_key_value is not None:
@@ -1134,18 +1121,14 @@ class BertSelfAttention(nn.Module):
             attention_mask = encoder_attention_mask
         elif is_cross_attention:
             key_tmp = self.key(encoder_hidden_states)
-            steps.append((self.key, key_tmp))
             value_tmp = self.value(encoder_hidden_states)
-            steps.append((self.value, value_tmp))
             
             key_layer = self.transpose_for_scores(key_tmp)
             value_layer = self.transpose_for_scores(value_tmp)
             attention_mask = encoder_attention_mask
         elif past_key_value is not None:
             key_tmp = self.key(hidden_states)
-            steps.append((self.key, key_tmp))
             value_tmp = self.value(hidden_states)
-            steps.append((self.value, value_tmp))
             
             key_layer = self.transpose_for_scores(key_tmp)
             value_layer = self.transpose_for_scores(value_tmp)
@@ -1153,9 +1136,7 @@ class BertSelfAttention(nn.Module):
             value_layer = torch.cat([past_key_value[1], value_layer], dim=2)
         else:
             key_tmp = self.key(hidden_states)
-            steps.append((self.key, key_tmp))
             value_tmp = self.value(hidden_states)
-            steps.append((self.value, value_tmp))
             
             key_layer = self.transpose_for_scores(key_tmp)
             value_layer = self.transpose_for_scores(value_tmp)
@@ -1196,11 +1177,9 @@ class BertSelfAttention(nn.Module):
             attention_scores = attention_scores + attention_mask
 
         attention_probs = nn.functional.softmax(attention_scores, dim=-1)
-        steps.append((nn.functional.softmax, attention_probs))
-
+        
         attention_probs = self.dropout(attention_probs)
-        steps.append((self.dropout, attention_probs))
-
+        
         if head_mask is not None:
             attention_probs = attention_probs * head_mask
 
@@ -1217,14 +1196,10 @@ class BertSelfAttention(nn.Module):
         
         return (steps, outputs)
 
-    def get_layers(self, encoder_hidden_states=None, past_key_value=None):
-        steps = [self.query]
-        is_cross_attention = encoder_hidden_states is not None
-        if not is_cross_attention or past_key_value is None:
-            steps.extend([self.key, self.value])
+    def get_prune_layers(self, encoder_hidden_states=None, past_key_value=None):
+        steps = []
         if self.position_embedding_type == "relative_key" or self.position_embedding_type == "relative_key_query":
-            steps.append(self.distance_embedding)
-        steps.extend([nn.functional.softmax, self.dropout])
+            steps = [self.distance_embedding]
         return steps
 
 
@@ -1241,19 +1216,14 @@ class BertSelfOutput(nn.Module):
         hidden_states = self.LayerNorm(hidden_states + input_tensor)
         return hidden_states
 
-    def get_forward_steps(self, hidden_states: torch.Tensor, input_tensor: torch.Tensor):
-        steps = []
+    def get_prune_layers_and_output(self, hidden_states: torch.Tensor, input_tensor: torch.Tensor):
         hidden_states = self.dense(hidden_states)
-        steps.append((self.dense, hidden_states))
         hidden_states = self.dropout(hidden_states)
-        steps.append((self.dropout, hidden_states))
         hidden_states = self.LayerNorm(hidden_states + input_tensor)
-        steps.append((self.LayerNorm, hidden_states))
-        return (steps, hidden_states)
+        return ([], hidden_states)
 
-    def get_layers(self):
-        steps = [self.dense, self.dropout, self.LayerNorm]
-        return steps
+    def get_prune_layers(self):
+        return []
 
 
 class BertIntermediate(nn.Module):
@@ -1270,16 +1240,13 @@ class BertIntermediate(nn.Module):
         hidden_states = self.intermediate_act_fn(hidden_states)
         return hidden_states
 
-    def get_forward_steps(self, hidden_states: torch.Tensor):
-        steps = []
+    def get_prune_layers_and_output(self, hidden_states: torch.Tensor):
         hidden_states = self.dense(hidden_states)
-        steps.append((self.dense, hidden_states))
         hidden_states = self.intermediate_act_fn(hidden_states)
-        return (steps, hidden_states)
+        return ([], hidden_states)
 
-    def get_layers(self):
-        steps = [self.dense]
-        return steps
+    def get_prune_layers(self):
+        return []
 
 
 class BertOutput(nn.Module):
@@ -1295,19 +1262,14 @@ class BertOutput(nn.Module):
         hidden_states = self.LayerNorm(hidden_states + input_tensor)
         return hidden_states
         
-    def get_forward_steps(self, hidden_states: torch.Tensor, input_tensor: torch.Tensor):
-        steps = []
+    def get_prune_layers_and_output(self, hidden_states: torch.Tensor, input_tensor: torch.Tensor):
         hidden_states = self.dense(hidden_states)
-        steps.append((self.dense, hidden_states))
         hidden_states = self.dropout(hidden_states)
-        steps.append((self.dropout, hidden_states))
         hidden_states = self.LayerNorm(hidden_states + input_tensor)
-        steps.append((self.LayerNorm, hidden_states))
-        return (steps, hidden_states)
+        return ([], hidden_states)
 
-    def get_layers(self):
-        steps = [self.dense, self.dropout, self.LayerNorm]
-        return steps
+    def get_prune_layers(self):
+        return []
 
 
 class BertPooler(nn.Module):
@@ -1324,15 +1286,11 @@ class BertPooler(nn.Module):
         pooled_output = self.activation(pooled_output)
         return pooled_output
 
-    def get_forward_steps(self, hidden_states: torch.Tensor):
-        steps = []
+    def get_prune_layers_and_output(self, hidden_states: torch.Tensor):
         first_token_tensor = hidden_states[:, 0]
         pooled_output = self.dense(first_token_tensor)
-        steps.append((self.dense, pooled_output))
         pooled_output = self.activation(pooled_output)
-        steps.append((self.activation, pooled_output))
-        return (steps, pooled_output)
+        return ([], pooled_output)
 
-    def get_layers(self):
-        steps = [self.dense, self.activation]
-        return steps
+    def get_prune_layers(self):
+        return []

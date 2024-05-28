@@ -49,18 +49,18 @@ def encode_before(args, model_before, ECC, save_dir, logging):
                 original_index = np.unravel_index(ids, param.shape)
                 if is_target or is_linear:   # conv/embedding or linear
                     if is_weight and weight_ids is not None:   # weight
-                        if original_index[1] not in weight_ids:   # not targets
-                            encoded_params.append(value.item())
+                        if original_index[1] not in weight_ids:
+                            encoded_params.append(value.item())   # not targets
                             continue
                 if is_target:   # conv or embedding
                     weight_ids = correct_targets_name[layer]   # update
                 
-                if not is_linear:
+                if is_target or not is_linear:
                     if weight_ids is None:
-                        encoded_params.append(value.item())
+                        encoded_params.append(value.item())   # not targets
                         continue
-                    if original_index[0] not in weight_ids:   # not targets
-                        encoded_params.append(value.item())
+                    if original_index[0] not in weight_ids:
+                        encoded_params.append(value.item())   # not targets
                         continue
 
             params.append(value.item())
@@ -73,7 +73,6 @@ def encode_before(args, model_before, ECC, save_dir, logging):
                 b_b.extend(whole_b_b[:args.msg_len])
             encoded_msg = ECC.encode(b_b)
             msglen = args.msg_len
-            redlen = args.t*4   # 4 = 8 % 2
             b_es = encoded_msg[:msglen]
             reds.append(encoded_msg[msglen:])
             b_e = []
@@ -108,7 +107,7 @@ def decode_after(args, model_after, ECC, save_dir, logging):
     all_reds_str = read_varlen_csv(f"{save_dir}/reds")
     all_reds = get_intlist_from_strlist(all_reds_str)
     logging.info("all redundants are loaded")
-
+    
     if args.target_ratio < 1.0:
         correct_targets_name = get_name_from_correct_targets(args, model_after, save_dir)
         modules_after = {name: module for name, module in model_after.named_modules()}
@@ -141,7 +140,7 @@ def decode_after(args, model_after, ECC, save_dir, logging):
                 if is_target:   # conv or embedding
                     weight_ids = correct_targets_name[layer]   # update
                 
-                if not is_linear:
+                if is_target or not is_linear:
                     if weight_ids is None:
                         decoded_params.append(value.item())
                         continue

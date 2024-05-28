@@ -27,29 +27,23 @@ class FilterPrunner:
         self.filter_ranks = {}
 
     def forward(self, data):
-        if self.arch == "bert":
-            TARGET_MODULE = torch.nn.modules.Embedding
-        else:
-            TARGET_MODULE = torch.nn.modules.conv.Conv2d
-        
         self.activations = []
         self.gradients = []
         self.grad_index = 0
         self.activation_to_layer = {}
 
         activation_index = 0
-        get_forward_steps, final_output = self.model.get_forward_steps(**data)
-        for layer, (module, output) in enumerate(get_forward_steps):
-            if isinstance(module, TARGET_MODULE):
-                output.register_hook(self.compute_rank)
-                self.activations.append(output)
-                self.activation_to_layer[activation_index] = layer
-                activation_index += 1
+        prune_layers, final_output = self.model.get_prune_layers_and_output(**data)
+        for layer, (module, output) in enumerate(prune_layers):
+            output.register_hook(self.compute_rank)
+            self.activations.append(output)
+            self.activation_to_layer[activation_index] = layer
+            activation_index += 1
 
         return final_output
 
     def compute_rank(self, grad):
-        if self.arch == "bert":
+        if self.arch == "bert" or self.arch == "vit":
             DIMMENTION = (0, 1)
             ACTIVATION_SIZE = 2
         else:
@@ -75,21 +69,19 @@ class FilterPrunner:
 
     def random_ranking_filters(self, num):
         if self.arch == "bert":
-            TARGET_MODULE = torch.nn.modules.Embedding
             WEIGHT_SIZE = 1
         else:
-            TARGET_MODULE = torch.nn.modules.conv.Conv2d
             WEIGHT_SIZE = 0
+
         self.activation_to_layer = {}
         activation_index = 0
-        steps = self.model.get_layers()
+        prune_layers = self.model.get_prune_layers()
         
-        for layer, module in enumerate(steps):
-            if isinstance(module, TARGET_MODULE):
-                if activation_index not in self.filter_ranks:
-                    self.filter_ranks[activation_index] = module.weight.size(WEIGHT_SIZE)
-                self.activation_to_layer[activation_index] = layer
-                activation_index += 1
+        for layer, module in enumerate(prune_layers):
+            if activation_index not in self.filter_ranks:
+                self.filter_ranks[activation_index] = module.weight.size(WEIGHT_SIZE)
+            self.activation_to_layer[activation_index] = layer
+            activation_index += 1
 
         data = []
         for i in range(len(self.activation_to_layer)):
@@ -142,14 +134,14 @@ class FilterPrunner:
 
 def total_num_filters(args, model):
     filters = 0
-    steps = model.get_layers()
-    for module in steps:
+    prune_layers = model.get_prune_layers()
+    for module in prune_layers:
         if args.arch == "bert":
-            if isinstance(module, torch.nn.modules.Embedding):
-                filters = filters + module.embedding_dim
+            filters = filters + module.embedding_dim
+        elif args.arch == "vit":
+            filters = filters + module.out_features
         else:
-            if isinstance(module, torch.nn.modules.conv.Conv2d):
-                filters = filters + module.out_channels
+            filters = filters + module.out_channels
     return filters
 
 
@@ -168,6 +160,16 @@ def train_batch(args, model, prunner, optimizer, data, rank_filters, device):
             criterion(output, Variable(targets)).backward()
         else:
             criterion(model(input, mask, token_type_ids), Variable(targets)).backward()
+            optimizer.step()
+    elif args.arch == "vit":
+        criterion = nn.CrossEntropyLoss()
+        imgs, labels = data[0].to(device), data[1].to(device)
+        input = Variable(imgs)
+        if rank_filters:
+            output = prunner.forward({"img":input})
+            criterion(output, Variable(labels)).backward()
+        else:
+            criterion(model(input), Variable(labels)).backward()
             optimizer.step()
     else:   # cnn
         criterion = nn.CrossEntropyLoss()

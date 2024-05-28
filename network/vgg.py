@@ -37,24 +37,22 @@ class VGG(nn.Module):
         layers += [nn.AvgPool2d(kernel_size=1, stride=1)]
         return nn.Sequential(*layers)
 
-    def get_forward_steps(self, x):
+    def get_prune_layers_and_output(self, x):
         steps = []
         if self.features is not None:
-            for module in self.features.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
-                    x = module(x)
+            for module in self.features:
+                x = module(x)
+                if type(module) == nn.Conv2d:
                     steps.append((module, x))
         
         out = x.view(x.size(0), -1)
         out = self.classifier(out)
-        steps.append((self.classifier, out))
         return (steps, out)
 
-    def get_layers(self):
+    def get_prune_layers(self):
         steps = []
         if self.features is not None:
-            for module in self.features.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
+            for module in self.features:
+                if type(module) == nn.Conv2d:
                     steps.append(module)
-        steps.append(self.classifier)
         return steps

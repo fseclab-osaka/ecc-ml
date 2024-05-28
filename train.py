@@ -70,7 +70,8 @@ def main():
             raise NotImplementedError
 
         optimizer = make_optim(args, model)
-        #scheduler =lr_scheduler.CosineAnnealingLR(optimizer, T_max=100)
+        if args.arch == "vit" and mode == "normal":
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epoch)
         
         for epoch in range(args.pretrained+1, args.epoch+1):
             start_time = time.time()
@@ -79,7 +80,8 @@ def main():
             elapsed_time = end_time - start_time
             print(f"train time {epoch}: {elapsed_time} seconds")
             train_losses.append(loss)
-            #scheduler.step()
+            if args.arch == "vit" and mode == "normal":
+                scheduler.step()
             logging.info(f"EPOCH: {epoch}\n"
                 f"TRAIN ACC: {acc:.6f}\t"
                 f"TRAIN LOSS: {loss:.6f}")

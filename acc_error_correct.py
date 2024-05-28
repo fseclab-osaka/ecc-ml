@@ -29,6 +29,7 @@ def calc_acc(args, model_before, model_after, model_decoded, save_dir, logging):
     params_decoded = get_params_info(args, model_decoded, save_dir)
     params_info = {"before":params_before, "after":params_after, "decoded":params_decoded}
     
+    """
     # plot parameters
     plt.plot(params_info["before"]["p_m"], label=f"epoch {args.before}", alpha=0.3)
     plt.plot(params_info["after"]["p_m"], label=f"epoch {args.after}", alpha=0.3)
@@ -36,6 +37,7 @@ def calc_acc(args, model_before, model_after, model_decoded, save_dir, logging):
     plt.legend()
     plt.savefig(f"{save_dir}/parameters{args.after}.png")
     plt.clf()
+    """
 
     # save distance between 2 parameters
     dist_before_after = get_dist_of_params(params_info["before"], params_info["after"])
