@@ -77,17 +77,11 @@ def main():
     torch_fix_seed(args.seed)
     device = torch.device(args.device)
 
-    seeds = [1]
-    target_ratios = ["0.1", "0.3", "0.6", "0.7", "0.8", "1.0"]
-
-    args.dataset = "classification"
-    args.arch = "bert"
-    args.epoch = 5
-    args.lr = 1e-05
-    args.before = 1
-    args.after = 5
-    args.msg_len = 32
-    args.t = 8
+    if args.arch == "bert":
+        seeds = [1]
+    else:
+        seeds = [1, 2, 3, 4]
+    target_ratios = ["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"]
 
     if args.over_fitting:
         mode = "over-fitting"

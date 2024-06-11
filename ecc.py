@@ -125,7 +125,7 @@ def decode_after(args, model_after, ECC, save_dir, logging):
         if args.target_ratio < 1.0:
             layer = '.'.join(name.split('.')[:-1])
             is_weight = (name.split('.')[-1] == "weight")
-            is_target = layer in correct_targets_name   # conv or embedding
+            is_target = layer in correct_targets_name   # conv or embedding oe linear
             is_linear = layer in modules_after and isinstance(modules_after[layer], torch.nn.Linear)   # linear
             
         j = 0

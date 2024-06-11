@@ -221,7 +221,10 @@ def main():
     torch_fix_seed(args.seed)
     device = torch.device(args.device)
 
-    seeds = [1, 2, 3, 4]
+    if args.arch == "bert":
+        seeds = [1]
+    else:
+        seeds = [1, 2, 3, 4]
     target_param = "target_ratio"
     param_candis = ["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"]
     

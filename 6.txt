@@ -1,0 +1,384 @@
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 237, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/acc_error_correct.py", line 223, in main
+    model_decoded = load_model(args, f"{save_dir}/decoded{args.after}", device)
+  File "/data/ashizawa/ecc-ml/utils.py", line 64, in load_model
+    model.load_state_dict(torch.load(f"{file_name}.pt", map_location="cpu"))
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1040, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/data/ashizawa/ecc-ml/ecc-env/lib/python3.9/site-packages/torch/serialization.py", line 1258, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+EOFError: Ran out of input
