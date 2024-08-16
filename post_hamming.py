@@ -18,60 +18,57 @@ def count_hamming(args, seeds, target_ratios, save_dir):
         writer.writerow(['', "target_ratio", "seed"] + [i for i in range(args.msg_len+1)])
         writer.writerow([])
         
-        block_hamming = []
-        symbol_hamming = []
-        
         for target_ratio in target_ratios:
             args.target_ratio = target_ratio
 
-            block_hamming_per_ratio = [['', target_ratio]]
-            average_block_hamming = ['', '', "ave."]
-            sum_block_hamming = [0]*(args.msg_len+1)
-            symbol_hamming_per_ratio = [['', target_ratio]]
-            average_symbol_hamming = ['', '', "ave."]
-            sum_symbol_hamming = [0]*(args.msg_len+1)
-    
+            hamming_per_ratio = [['', target_ratio]]
+            average_hamming = ['', '', "ave."]
+            sum_hamming = [0]*(args.msg_len+1)
+            rate_hamming_per_ratio = [["rate"], ['', target_ratio]]
+            average_rate_hamming = ['', '', 'ave.']
+            sum_rate_hamming = [0]*(args.msg_len+1)
+            
             for seed in seeds:
                 args.seed = seed
                 load_dir = make_savedir(args)
                 
-                block_hamming_per_seed = ['', '', seed] + ['']*(args.msg_len+1)
-                symbol_hamming_per_seed = ['', '', seed] + ['']*(args.msg_len+1)
-
+                hamming_per_seed = ['', '', seed] + ['']*(args.msg_len+1)
+                rate_hamming_per_seed = ['', '', seed]
+                all_sum_hamming_per_seed = 0
+                
                 with open(f"{load_dir}/acc{args.after}.log", "r") as log_file:
                     print(f"opened {load_dir}/acc{args.after}.log")
                     for line in log_file:
                         # Use regular expressions to extract the necessary information
-                        match = re.search(r"\[(\d+)\]\s+Block acc:\s+\d+/(\d+)=.+\s+Symbol acc:\s+\d+/(\d+)\*\d+=.+", line)
+                        match = re.search(r"\[(\d+)\]\s+Block acc:\s+\d+/(\d+)=.+\s+Symbol acc:\s+\d+/\d+\*\d+=.+", line)
                         
                         if match:
                             # If a match is found, add the information to the dictionary
-                            hamming = int(match.group(1))
+                            each_hamming = int(match.group(1))
                             sum_params = int(match.group(2))
-                            block_hamming_per_seed[hamming+3] = sum_params
-                            sum_block_hamming[hamming] += sum_params
-                            sum_params = int(match.group(3))
-                            symbol_hamming_per_seed[hamming+3] = sum_params
-                            sum_symbol_hamming[hamming] += sum_params
+                            hamming_per_seed[each_hamming+3] += str(sum_params)
+                            sum_hamming[each_hamming] += sum_params
+                            all_sum_hamming_per_seed += sum_params
+                            
+                for i, h in enumerate(hamming_per_seed[3:]):
+                    if len(h) > 0:
+                        rate = int(h)/all_sum_hamming_per_seed
+                    else:
+                        rate = 0
+                    rate_hamming_per_seed.append(rate)
+                    sum_rate_hamming[i] += rate
+                
+                hamming_per_ratio.append(hamming_per_seed)
+                rate_hamming_per_ratio.append(rate_hamming_per_seed)
+    
+            average_hamming.extend([s/len(seeds) for s in sum_hamming])
+            average_rate_hamming.extend([s/len(seeds) for s in sum_rate_hamming])
+            hamming_per_ratio.append(average_hamming)
+            rate_hamming_per_ratio.append(average_rate_hamming)
 
-                block_hamming_per_ratio.append(block_hamming_per_seed)
-                symbol_hamming_per_ratio.append(symbol_hamming_per_seed)
-            
-            average_block_hamming.extend([s/len(seeds) for s in sum_block_hamming])
-            average_symbol_hamming.extend([s/len(seeds) for s in sum_symbol_hamming])
-            block_hamming_per_ratio.append(average_block_hamming)
-            symbol_hamming_per_ratio.append(average_symbol_hamming)
-
-            block_hamming.append(block_hamming_per_ratio)
-            symbol_hamming.append(symbol_hamming_per_ratio)
-        
-        writer.writerow(["block hamming distance"])
-        for b in block_hamming:
-            writer.writerows(b)
+            writer.writerows(hamming_per_ratio)
             writer.writerow([])
-        writer.writerow(["symbol hamming distance"])
-        for s in symbol_hamming:
-            writer.writerows(s)
+            writer.writerows(rate_hamming_per_ratio)
             writer.writerow([])
         
         
@@ -80,13 +77,18 @@ def main():
     torch_fix_seed(args.seed)
     device = torch.device(args.device)
 
-    seeds = [1, 2, 3, 4]
+    if args.arch == "bert":
+        seeds = [1]
+    else:
+        seeds = [1, 2, 3, 4]
     target_ratios = ["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"]
 
     if args.over_fitting:
         mode = "over-fitting"
     elif args.label_flipping > 0:
         mode = "label-flipping"
+    elif args.label_flipping == 0:
+        mode = "normal"
     else:
         raise NotImplementedError
 

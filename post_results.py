@@ -13,7 +13,7 @@ from logger import get_logger, logging_args
 
 def create_summary_files(args, target_param, candidates, seeds, save_dir):
 
-    with open(f"{save_dir}/{target_param}.csv", "w") as f:
+    with open(f"{save_dir}/{target_param}-{args.t}.csv", "w") as f:
         writer = csv.writer(f)
         writer.writerow(['', "seed"] + candidates)
         writer.writerow([])
@@ -83,12 +83,10 @@ def create_summary_files(args, target_param, candidates, seeds, save_dir):
                 all_time_per_seed.append(atime)
                 sum_all_time[i] += atime
                 
-                reds1  = f"{load_dir}/reds1.txt"
-                reds1_size = os.path.getsize(reds1)
-                reds2  = f"{load_dir}/reds2.txt"
-                reds2_size = os.path.getsize(reds2)
-                reds_size_per_seed.append(reds1_size + reds2_size)
-                sum_reds_size[i] += reds1_size + reds2_size
+                reds  = f"{load_dir}/reds.txt"
+                each_reds_size = os.path.getsize(reds)
+                reds_size_per_seed.append(each_reds_size)
+                sum_reds_size[i] += each_reds_size
 
                 with open(f"{load_dir}/output{args.after}.log", "r") as log_file:
                     print(f"opend {load_dir}/output{args.after}.log")
@@ -160,7 +158,7 @@ def create_summary_files(args, target_param, candidates, seeds, save_dir):
         writer.writerows(output_diff_before_decoded_all + output_diff_rate)
         writer.writerow(average_output_diff + [])
 
-    with open(f"{save_dir}/{target_param}_acc.csv", "w") as f:
+    with open(f"{save_dir}/{target_param}-{args.t}-acc.csv", "w") as f:
         writer = csv.writer(f)
         writer.writerow(['', "hamming distance"] + candidates)
         writer.writerow([])
@@ -223,9 +221,12 @@ def main():
     torch_fix_seed(args.seed)
     device = torch.device(args.device)
 
-    seeds = [1 ,2 ,3 ,4]
-    target_param = "t"
-    param_candis = ["5", "6", "7", "8"]
+    if args.arch == "bert":
+        seeds = [1]
+    else:
+        seeds = [1, 2, 3, 4]
+    target_param = "target_ratio"
+    param_candis = ["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"]
     
     if args.over_fitting:
         mode = "over-fitting"
@@ -236,7 +237,7 @@ def main():
     else:
         raise NotImplementedError
         
-    save_dir = f"{'/'.join(make_savedir(args).split('/')[:4])}/table{args.after}"
+    save_dir = f"{'/'.join(make_savedir(args).split('/')[:5])}/table{args.after}"
     os.makedirs(save_dir, exist_ok=True)
 
     logging = get_logger(f"{save_dir}/{target_param}.log")

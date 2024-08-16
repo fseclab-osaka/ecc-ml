@@ -38,48 +38,37 @@ class BasicBlock(nn.Module):
         out = F.relu(out)
         return out
 
-    def get_forward_steps(self):
+    def get_prune_layers_and_output(self, x):
+        steps = []
+        out = self.conv1(x)
+        steps.append((self.conv1, out))
+        out = self.bn1(out)
+        out = F.relu(out)
+        
+        out = self.conv2(out)
+        steps.append((self.conv2, out))
+        out = self.bn2(out)
+        
+        if self.shortcut is not None:
+            for module in self.shortcut:
+                x = module(x)
+                if type(module) == nn.Conv2d:
+                    steps.append((module, x))
+        out = out + x
+
+        out = F.relu(out)
+        return (steps, out)
+
+    def get_prune_layers(self):
         steps = [
             self.conv1,
-            self.bn1,
-            F.relu,
             self.conv2,
-            self.bn2,
         ]
         if self.shortcut is not None:
-            for module in self.shortcut.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
+            for module in self.shortcut:
+                if type(module) == nn.Conv2d:
                     steps.append(module)
-        else:
-            steps.append(lambda x: x)
-
-        steps.extend([
-            (lambda x, y: x + y),
-            F.relu
-        ])
-
         return steps
-    
-    def get_input_info(self):
-        # Manually specify which steps take 'x' and/or 'output' as input and generate 'y'
-        input_info = [{'x':True, 'y': False, 'generate': True},  # 'x' is input and output, 'y' is generated
-            {'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},]  # 'x' is input and output, 'y' is not generated
-        
-        if self.shortcut is not None:
-            # Assuming each module in self.shortcut takes 'x' as input
-            shortcut_input_list = [{'x':False, 'y': True, 'generate': False}] * len(self.shortcut)  # 'y' is input and output, 'y' is not generated
-            input_info.extend(shortcut_input_list)
-        else:
-            # The identity function takes 'x' as input
-            input_info.append({'x':False, 'y': True, 'generate': False})  # 'y' is input and output, 'y' is not generated
-        
-        input_info.extend([{'x':True, 'y': True, 'generate': False},   # 'x' and 'y' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False}])  # 'x' is input and output, 'y' is not generated
-
-        return input_info
 
 
 class Bottleneck(nn.Module):
@@ -112,53 +101,43 @@ class Bottleneck(nn.Module):
         out = F.relu(out)
         return out
 
-    def get_forward_steps(self):
+    def get_prune_layers_and_output(self, x):
+        steps = []
+        out = self.conv1(x)
+        steps.append((self.conv1, out))
+        out = self.bn1(out)
+        out = F.relu(out)
+        
+        out = self.conv2(out)
+        steps.append((self.conv2, out))
+        out = self.bn2(out)
+        out = F.relu(out)
+        
+        out = self.conv3(out)
+        steps.append((self.conv3, out))
+        out = self.bn3(out)
+        
+        if self.shortcut is not None:
+            for module in self.shortcut:
+                x = module(x)
+                if type(module) == nn.Conv2d:
+                    steps.append((module, x))
+        out = out + x
+
+        out = F.relu(out)
+        return (steps, out)
+
+    def get_prune_layers(self):
         steps = [
             self.conv1,
-            self.bn1,
-            F.relu,
             self.conv2,
-            self.bn2,
-            F.relu,
             self.conv3,
-            self.bn3,
         ]
         if self.shortcut is not None:
-            for module in self.shortcut.modules():
-                if type(module) != nn.Sequential:  # avoid the container itself
+            for module in self.shortcut:
+                if type(module) == nn.Conv2d:
                     steps.append(module)
-        else:
-            steps.append(lambda x: x)
-
-        steps.extend([
-            (lambda x, y: x + y),
-            F.relu
-        ])
         return steps
-
-    def get_input_info(self):
-        # Manually specify which steps take 'x' and/or 'output' as input and generate 'y'
-        input_info = [{'x':True, 'y': False, 'generate': True},  # 'x' is input and output, 'y' is generated
-            {'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},]  # 'x' is input and output, 'y' is not generated
-        
-        if self.shortcut is not None:
-            # Assuming each module in self.shortcut takes 'x' as input
-            shortcut_input_list = [{'x':False, 'y': True, 'generate': False}] * len(self.shortcut)  # 'y' is input and output, 'y' is not generated
-            input_info.extend(shortcut_input_list)
-        else:
-            # The identity function takes 'x' as input
-            input_info.append({'x':False, 'y': True, 'generate': False})  # 'y' is input and output, 'y' is not generated
-        
-        input_info.extend([{'x':True, 'y': True, 'generate': False},   # 'x' and 'y' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False}])  # 'x' is input and output, 'y' is not generated
-
-        return input_info
 
 
 class ResNet(nn.Module):
@@ -194,40 +173,59 @@ class ResNet(nn.Module):
         out = self.linear(out)
         return out
 
-    def get_forward_steps(self):
+    def get_prune_layers_and_output(self, x):
+        steps = []
+        out = self.conv1(x)
+        steps.append((self.conv1, out))
+        out = self.bn1(out)
+        out = F.relu(out)
+
+        if self.layer1 is not None:
+            for module in self.layer1:
+                step, out = module.get_prune_layers_and_output(out)
+                steps.extend(step)
+
+        if self.layer2 is not None:
+            for module in self.layer2:
+                step, out = module.get_prune_layers_and_output(out)
+                steps.extend(step)
+
+        if self.layer3 is not None:
+            for module in self.layer3:
+                step, out = module.get_prune_layers_and_output(out)
+                steps.extend(step)
+
+        if self.layer4 is not None:
+            for module in self.layer4:
+                step, out = module.get_prune_layers_and_output(out)
+                steps.extend(step)
+        
+        out = F.avg_pool2d(out, 4)
+        
+        out = out.view(out.size(0), -1)
+        out = self.linear(out)
+        return (steps, out)
+
+    def get_prune_layers(self):
         steps = [
             self.conv1,
-            self.bn1,
-            F.relu,
         ]
-        for layer in [self.layer1, self.layer2, self.layer3, self.layer4]:
-            for block in layer:
-                steps.extend(block.get_forward_steps())
+        if self.layer1 is not None:
+            for module in self.layer1:
+                steps.extend(module.get_prune_layers())
 
-        steps.extend([
-            (lambda x: F.avg_pool2d(x, 4)),
-            (lambda x: x.view(x.size(0), -1)),
-            self.linear,
-        ])
+        if self.layer2 is not None:
+            for module in self.layer2:
+                steps.extend(module.get_prune_layers())
 
+        if self.layer3 is not None:
+            for module in self.layer3:
+                steps.extend(module.get_prune_layers())
+
+        if self.layer4 is not None:
+            for module in self.layer4:
+                steps.extend(module.get_prune_layers())
         return steps
-
-    def get_input_info(self):
-        # Manually specify which steps take 'x' and/or 'output' as input and generate 'y'
-        input_info = [{'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},]  # 'x' is input and output, 'y' is not generated
-
-        for layer in [self.layer1, self.layer2, self.layer3, self.layer4]:
-            for block in layer:
-                block_input_info = block.get_input_info()
-                input_info.extend(block_input_info)
-
-        input_info.extend([{'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},  # 'x' is input and output, 'y' is not generated
-            {'x':True, 'y': False, 'generate': False},])  # 'x' is input and output, 'y' is not generated
-
-        return input_info
 
 
 def ResNet18():
@@ -248,11 +246,3 @@ def ResNet101():
 
 def ResNet152():
     return ResNet(Bottleneck, [3, 8, 36, 3])
-
-
-def test():
-    net = ResNet18()
-    y = net(torch.randn(1, 3, 32, 32))
-    print(y.size())
-
-# test()

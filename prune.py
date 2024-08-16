@@ -17,60 +17,50 @@ from logger import get_logger, logging_args
 
 
 class FilterPrunner:
-    def __init__(self, model, device):
+    def __init__(self, model, arch, device):
         self.model = model
+        self.arch = arch
         self.device = device
         self.reset()
     
     def reset(self):
         self.filter_ranks = {}
 
-    def forward(self, x):
+    def forward(self, data):
         self.activations = []
         self.gradients = []
         self.grad_index = 0
         self.activation_to_layer = {}
 
         activation_index = 0
-        get_forward_steps = self.model.get_forward_steps()
-        get_input_info = self.model.get_input_info()
-        for layer, module in enumerate(get_forward_steps):
-            if get_input_info[layer]['generate']:
-                y = x
-            if get_input_info[layer]['x']:
-                if get_input_info[layer]['y']:
-                    x = module(x, y)
-                else:
-                    x = module(x)
-                if isinstance(module, torch.nn.modules.conv.Conv2d):
-                    x.register_hook(self.compute_rank)
-                    self.activations.append(x)
-                    self.activation_to_layer[activation_index] = layer
-                    activation_index += 1
-            elif get_input_info[layer]['y']:
-                y = module(y)
-                if isinstance(module, torch.nn.modules.conv.Conv2d):
-                    y.register_hook(self.compute_rank)
-                    self.activations.append(y)
-                    self.activation_to_layer[activation_index] = layer
-                    activation_index += 1
-            else:
-                raise NotImplementedError
+        prune_layers, final_output = self.model.get_prune_layers_and_output(**data)
+        for layer, (module, output) in enumerate(prune_layers):
+            output.register_hook(self.compute_rank)
+            self.activations.append(output)
+            self.activation_to_layer[activation_index] = layer
+            activation_index += 1
 
-        return x
+        return final_output
 
     def compute_rank(self, grad):
+        if self.arch == "bert" or self.arch == "vit":
+            DIMMENTION = (0, 1)
+            ACTIVATION_SIZE = 2
+        else:
+            DIMMENTION = (0, 2, 3)
+            ACTIVATION_SIZE = 1
+
         activation_index = len(self.activations) - self.grad_index - 1
         activation = self.activations[activation_index]
 
         taylor = activation * grad
         # Get the average value for every filter, 
         # accross all the other dimensions
-        taylor = taylor.mean(dim=(0, 2, 3)).data
+        taylor = taylor.mean(dim=DIMMENTION).data
         
         if activation_index not in self.filter_ranks:
             self.filter_ranks[activation_index] = \
-                torch.FloatTensor(activation.size(1)).zero_()
+                torch.FloatTensor(activation.size(ACTIVATION_SIZE)).zero_()
 
             self.filter_ranks[activation_index] = self.filter_ranks[activation_index].to(self.device)
 
@@ -78,16 +68,20 @@ class FilterPrunner:
         self.grad_index += 1
 
     def random_ranking_filters(self, num):
+        if self.arch == "bert":
+            WEIGHT_SIZE = 1
+        else:
+            WEIGHT_SIZE = 0
+
         self.activation_to_layer = {}
         activation_index = 0
-        get_forward_steps = self.model.get_forward_steps()
+        prune_layers = self.model.get_prune_layers()
         
-        for layer, module in enumerate(get_forward_steps):
-            if isinstance(module, torch.nn.modules.conv.Conv2d):
-                if activation_index not in self.filter_ranks:
-                    self.filter_ranks[activation_index] = module.weight.size(0)
-                self.activation_to_layer[activation_index] = layer
-                activation_index += 1
+        for layer, module in enumerate(prune_layers):
+            if activation_index not in self.filter_ranks:
+                self.filter_ranks[activation_index] = module.weight.size(WEIGHT_SIZE)
+            self.activation_to_layer[activation_index] = layer
+            activation_index += 1
 
         data = []
         for i in range(len(self.activation_to_layer)):
@@ -138,49 +132,74 @@ class FilterPrunner:
         return filters_to_correct
 
 
-def total_num_filters(model):
+def total_num_filters(args, model):
     filters = 0
-    get_forward_steps = model.get_forward_steps()
-    for module in get_forward_steps:
-        if isinstance(module, torch.nn.modules.conv.Conv2d):
+    prune_layers = model.get_prune_layers()
+    for module in prune_layers:
+        if args.arch == "bert":
+            filters = filters + module.embedding_dim
+        elif args.arch == "vit":
+            filters = filters + module.out_features
+        else:
             filters = filters + module.out_channels
     return filters
 
 
-def train_batch(model, prunner, optimizer, criterion, batch, label, rank_filters, device):
-    batch, label = batch.to(device), label.to(device)
-
+def train_batch(args, model, prunner, optimizer, data, rank_filters, device):
     model.zero_grad()
-    input = Variable(batch)
+    
+    if args.arch == "bert":
+        criterion = nn.BCEWithLogitsLoss()
+        ids = data['ids'].to(device, dtype=torch.long)
+        mask = data['mask'].to(device, dtype=torch.long)
+        token_type_ids = data['token_type_ids'].to(device, dtype=torch.long)
+        targets = data['targets'].to(device, dtype=torch.float)
+        input = Variable(ids)
+        if rank_filters:
+            output = prunner.forward({"ids":input, "mask":mask, "token_type_ids":token_type_ids})
+            criterion(output, Variable(targets)).backward()
+        else:
+            criterion(model(input, mask, token_type_ids), Variable(targets)).backward()
+            optimizer.step()
+    elif args.arch == "vit":
+        criterion = nn.CrossEntropyLoss()
+        imgs, labels = data[0].to(device), data[1].to(device)
+        input = Variable(imgs)
+        if rank_filters:
+            output = prunner.forward({"img":input})
+            criterion(output, Variable(labels)).backward()
+        else:
+            criterion(model(input), Variable(labels)).backward()
+            optimizer.step()
+    else:   # cnn
+        criterion = nn.CrossEntropyLoss()
+        imgs, labels = data[0].to(device), data[1].to(device)
+        input = Variable(imgs)
+        if rank_filters:
+            output = prunner.forward({"x":input})
+            criterion(output, Variable(labels)).backward()
+        else:
+            criterion(model(input), Variable(labels)).backward()
+            optimizer.step()
 
-    if rank_filters:
-        output = prunner.forward(input)
-        criterion(output, Variable(label)).backward()
-    else:
-        criterion(model(input), Variable(label)).backward()
-        optimizer.step()
 
-
-def train_epoch(model, prunner, train_loader, device, optimizer=None, rank_filters=False):
-    criterion = torch.nn.CrossEntropyLoss()
-    for i, (batch, label) in enumerate(train_loader):
-        train_batch(model, prunner, optimizer, criterion, batch, label, rank_filters, device)
+def train_epoch(args, model, prunner, train_loader, device, optimizer=None, rank_filters=False):
+    for _, data in enumerate(train_loader):
+        train_batch(args, model, prunner, optimizer, data, rank_filters, device)
 
 
 def get_candidates_to_correct(args, model, train_loader, num_filters_to_correct, device):
-    prunner = FilterPrunner(model, device) 
-    prunner.reset()
+    prunner = FilterPrunner(model, args.arch, device) 
     if not args.random_target:
-        train_epoch(model, prunner, train_loader, device, rank_filters=True)
+        train_epoch(args, model, prunner, train_loader, device, rank_filters=True)
         prunner.normalize_ranks_per_layer()
     return prunner.get_pruning_plan(args, num_filters_to_correct)
         
         
-def prune(args, model, device, save_dir, logging):
-    save_data_file = f"{save_dir}/{args.seed}_targets.npy"
-    train_loader, test_loader = prepare_dataset(args)
+def prune(args, model, device, save_data_file, logging):
+    train_loader, _ = prepare_dataset(args)
     
-    number_of_filters = total_num_filters(model)
+    number_of_filters = total_num_filters(args, model)
     num_filters_to_correct = int(number_of_filters * args.target_ratio)
     logging.info(f"Number of parameters to correct {args.target_ratio*100}% filters: {num_filters_to_correct}")
 
@@ -203,18 +222,23 @@ def main():
         raise NotImplementedError
 
     load_dir = f"./train/{args.dataset}/{args.arch}/{args.epoch}/{args.lr}/{mode}{args.pretrained}/{args.seed}/model"
-    model_before = load_model(args, f"{load_dir}/{args.before}", device)
-
     target_ratio = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-
+    #target_ratio = [0.1, 0.3, 0.6, 0.7, 0.8]
+    
     for t in target_ratio:
         args.target_ratio = t
 
         save_dir = f"{'/'.join(make_savedir(args).split('/')[:6])}"
-        logging = get_logger(f"{save_dir}/{args.seed}_targets.log")
-        logging_args(args, logging)
-    
-        prune(args, model_before, device, save_dir, logging)
+        save_data_file = f"{save_dir}/{args.seed}_targets.npy"
+        if not os.path.isfile(save_data_file):
+            logging = get_logger(f"{save_dir}/{args.seed}_targets{t}.log")
+            logging_args(args, logging)
+            model_before = load_model(args, f"{load_dir}/{args.before}", torch.device("cpu"))   # not parallel
+            model_before = model_before.to(device)
+            
+            prune(args, model_before, device, save_data_file, logging)
+            del model_before
+            torch.cuda.empty_cache()
     
     exit()
 

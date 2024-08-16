@@ -1,10 +1,15 @@
 '''
 MIT License
 Copyright (c) 2023 fseclab-osaka
+
+bert finetuning reference: 
+https://colab.research.google.com/github/abhimishra91/transformers-tutorials/blob/master/transformers_multi_label_classification.ipynb#scrollTo=5kcqh607S_p_
+
 '''
 
 import os
 import csv
+import time
 
 import numpy as np
 import torch
@@ -47,31 +52,45 @@ def main():
             model = make_model(args, device)
         elif args.pretrained > 0:
             for epoch in range(1, args.pretrained+1):
-                model = load_model(args, f"./train/{args.dataset}/{args.arch}/{args.epoch}/{args.lr}/{args.seed}/normal/0/model/{epoch}", device)
+                model = load_model(args, f"./train/{args.dataset}/{args.arch}/{args.epoch}/{args.lr}/normal0/{args.seed}/model/{epoch}", device)
                 # test acc
-                acc, loss = test(model, test_loader, device)
+                start_time = time.time()
+                acc, loss = test(args, model, test_loader, device)
+                end_time = time.time()
+                elapsed_time = end_time - start_time
+                print(f"test time {epoch}: {elapsed_time} seconds")
                 test_losses.append(loss)
                 logging.info(f"INITIAL VAL ACC: {acc:.6f}\t"
                     f"VAL LOSS: {loss:.6f}")
                 # save model
                 save_model(model, f"{save_model_dir}/{epoch}")
                 del model
-            model = load_model(args, f"./train/{args.dataset}/{args.arch}/{args.epoch}/{args.lr}/{args.seed}/normal/0/model/{args.pretrained}", device)
+            model = load_model(args, f"./train/{args.dataset}/{args.arch}/{args.epoch}/{args.lr}/normal0/{args.seed}/model/{args.pretrained}", device)
         else:
             raise NotImplementedError
 
-        optimizer = make_optim(args, model, pretrained=False)
-        #scheduler =lr_scheduler.CosineAnnealingLR(optimizer, T_max=100)
+        optimizer = make_optim(args, model)
+        if args.arch == "vit" and mode == "normal":
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epoch)
         
         for epoch in range(args.pretrained+1, args.epoch+1):
-            acc, loss = train(model, train_loader, optimizer, device)
+            start_time = time.time()
+            acc, loss = train(args, model, train_loader, optimizer, device)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"train time {epoch}: {elapsed_time} seconds")
             train_losses.append(loss)
-            #scheduler.step()
+            if args.arch == "vit" and mode == "normal":
+                scheduler.step()
             logging.info(f"EPOCH: {epoch}\n"
                 f"TRAIN ACC: {acc:.6f}\t"
                 f"TRAIN LOSS: {loss:.6f}")
             # test acc
-            acc, loss = test(model, test_loader, device)
+            start_time = time.time()
+            acc, loss = test(args, model, test_loader, device)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"test time {epoch}: {elapsed_time} seconds")
             test_losses.append(loss)
             logging.info(f"VAL ACC: {acc:.6f}\t"
                 f"VAL LOSS: {loss:.6f}")

@@ -1,0 +1,302 @@
+./train/classification/bert/5/1e-05/label-flipping1/1/model/1 model loaded.
+./train/classification/bert/5/1e-05/label-flipping1/1/model/5 model loaded.
+./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.4/32/False/rs/6/1/decoded5 model loaded.
+./train/classification/bert/5/1e-05/over-fitting1/1/model/1 model loaded.
+./train/classification/bert/5/1e-05/over-fitting1/1/model/5 model loaded.
+./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.5/32/False/rs/6/1/decoded5 model loaded.
+./train/classification/bert/5/1e-05/label-flipping1/1/model/1 model loaded.
+./train/classification/bert/5/1e-05/label-flipping1/1/model/5 model loaded.
+./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.7/32/False/rs/6/1/decoded5 model loaded.
+./run.sh: line 48: 2960428 Killed                  python acc_error_correct.py --seed $seed --arch $arch --dataset $dataset --lr $lr --epoch $epoch --mode acc --target-ratio $ratio --random-target --before $overfitting_before --after $((overfitting_before+interval_epoch)) --over-fitting --pretrained $overfitting_startepoch --msg-len 32 --t $t
+./run.sh: line 48: 2960635 Killed                  python acc_error_correct.py --seed $seed --arch $arch --dataset $dataset --lr $lr --epoch $epoch --mode acc --target-ratio $ratio --random-target --before $overfitting_before --after $((overfitting_before+interval_epoch)) --over-fitting --pretrained $overfitting_startepoch --msg-len 32 --t $t
+./run.sh: line 48: 2960755 Killed                  python acc_error_correct.py --seed $seed --arch $arch --dataset $dataset --lr $lr --epoch $epoch --mode acc --target-ratio $ratio --before $overfitting_before --after $((overfitting_before+interval_epoch)) --over-fitting --pretrained $overfitting_startepoch --msg-len 32 --t $t
+./run.sh: line 48: 2960756 Killed                  python acc_error_correct.py --seed $seed --arch $arch --dataset $dataset --lr $lr --epoch $epoch --mode acc --target-ratio $ratio --before $labelflipping_before --after $((labelflipping_before+interval_epoch)) --label-flipping 0.1 --pretrained $labelflipping_startepoch --msg-len 32 --t $t
+./run.sh: line 48: 2960538 Killed                  python acc_error_correct.py --seed $seed --arch $arch --dataset $dataset --lr $lr --epoch $epoch --mode acc --target-ratio $ratio --before $overfitting_before --after $((overfitting_before+interval_epoch)) --over-fitting --pretrained $overfitting_startepoch --msg-len 32 --t $t
+./run.sh: line 48: 2961463 Killed                  python acc_error_correct.py --seed $seed --arch $arch --dataset $dataset --lr $lr --epoch $epoch --mode acc --target-ratio $ratio --before $overfitting_before --after $((overfitting_before+interval_epoch)) --over-fitting --pretrained $overfitting_startepoch --msg-len 32 --t $t
+./run.sh: line 48: 2961464 Killed                  python acc_error_correct.py --seed $seed --arch $arch --dataset $dataset --lr $lr --epoch $epoch --mode acc --target-ratio $ratio --before $labelflipping_before --after $((labelflipping_before+interval_epoch)) --label-flipping 0.1 --pretrained $labelflipping_startepoch --msg-len 32 --t $t
+./run.sh: line 48: 2961355 Killed                  python acc_error_correct.py --seed $seed --arch $arch --dataset $dataset --lr $lr --epoch $epoch --mode acc --target-ratio $ratio --random-target --before $overfitting_before --after $((overfitting_before+interval_epoch)) --over-fitting --pretrained $overfitting_startepoch --msg-len 32 --t $t
+./run.sh: line 48: 2961852 Killed                  python acc_error_correct.py --seed $seed --arch $arch --dataset $dataset --lr $lr --epoch $epoch --mode acc --target-ratio $ratio --random-target --before $overfitting_before --after $((overfitting_before+interval_epoch)) --over-fitting --pretrained $overfitting_startepoch --msg-len 32 --t $t
+./run.sh: line 48: 2961853 Killed                  python acc_error_correct.py --seed $seed --arch $arch --dataset $dataset --lr $lr --epoch $epoch --mode acc --target-ratio $ratio --random-target --before $labelflipping_before --after $((labelflipping_before+interval_epoch)) --label-flipping 0.1 --pretrained $labelflipping_startepoch --msg-len 32 --t $t
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.1/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.1/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.1/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.1/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.2/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.2/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.2/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.2/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.3/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.3/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.3/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.3/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.4/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.4/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.4/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.4/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.5/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.5/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.5/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.5/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.6/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.6/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.6/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.6/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.7/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.7/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.7/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.7/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.8/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.8/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.8/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.8/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.9/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.9/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.9/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.9/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/1.0/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/1.0/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/1.0/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/1.0/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.1/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.2/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.3/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.4/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.5/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.6/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.7/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.8/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.9/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/1.0/32/False/rs/6/1/acc5.log
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/post_results.py", line 250, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/post_results.py", line 246, in main
+    create_summary_files(args, target_param, param_candis, seeds, save_dir)
+  File "/data/ashizawa/ecc-ml/post_results.py", line 199, in create_summary_files
+    block_max_key = max(max(acc.keys()) for acc in block_acc_per_seed)
+  File "/data/ashizawa/ecc-ml/post_results.py", line 199, in <genexpr>
+    block_max_key = max(max(acc.keys()) for acc in block_acc_per_seed)
+ValueError: max() arg is an empty sequence
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.1/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.1/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.1/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.1/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.2/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.2/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.2/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.2/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.3/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.3/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.3/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.3/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.4/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.4/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.4/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.4/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.5/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.5/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.5/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.5/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.6/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.6/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.6/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.6/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.7/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.7/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.7/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.7/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.8/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.8/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.8/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.8/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.9/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.9/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.9/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.9/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/1.0/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/1.0/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/1.0/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/1.0/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.1/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.2/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.3/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.4/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.5/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.6/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.7/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.8/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.9/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/1.0/32/False/rs/6/1/acc5.log
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/post_results.py", line 250, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/post_results.py", line 246, in main
+    create_summary_files(args, target_param, param_candis, seeds, save_dir)
+  File "/data/ashizawa/ecc-ml/post_results.py", line 199, in create_summary_files
+    block_max_key = max(max(acc.keys()) for acc in block_acc_per_seed)
+  File "/data/ashizawa/ecc-ml/post_results.py", line 199, in <genexpr>
+    block_max_key = max(max(acc.keys()) for acc in block_acc_per_seed)
+ValueError: max() arg is an empty sequence
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.1/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.1/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.1/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.1/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.2/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.2/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.2/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.2/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.3/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.3/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.3/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.3/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.4/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.4/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.4/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.4/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.5/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.5/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.5/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.5/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.6/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.6/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.6/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.6/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.7/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.7/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.7/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.7/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.8/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.8/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.8/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.8/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.9/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.9/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.9/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.9/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/1.0/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/1.0/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/1.0/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/1.0/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.1/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.2/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.3/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.4/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.5/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.6/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.7/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.8/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.9/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/1.0/32/False/rs/6/1/acc5.log
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/post_results.py", line 250, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/post_results.py", line 246, in main
+    create_summary_files(args, target_param, param_candis, seeds, save_dir)
+  File "/data/ashizawa/ecc-ml/post_results.py", line 199, in create_summary_files
+    block_max_key = max(max(acc.keys()) for acc in block_acc_per_seed)
+  File "/data/ashizawa/ecc-ml/post_results.py", line 199, in <genexpr>
+    block_max_key = max(max(acc.keys()) for acc in block_acc_per_seed)
+ValueError: max() arg is an empty sequence
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.1/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.1/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.1/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.1/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.2/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.2/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.2/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.2/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.3/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.3/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.3/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.3/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.4/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.4/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.4/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.4/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.5/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.5/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.5/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.5/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.6/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.6/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.6/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.6/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.7/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.7/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.7/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.7/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.8/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.8/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.8/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.8/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.9/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.9/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.9/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.9/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/1.0/32/False/rs/6/1/encode.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/1.0/32/False/rs/6/1/decode5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/1.0/32/False/rs/6/1/output5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/1.0/32/False/rs/6/1/output5.txt
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.1/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.2/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.3/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.4/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.5/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.6/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.7/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.8/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.9/32/False/rs/6/1/acc5.log
+opend ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/1.0/32/False/rs/6/1/acc5.log
+Traceback (most recent call last):
+  File "/data/ashizawa/ecc-ml/post_results.py", line 250, in <module>
+    main()
+  File "/data/ashizawa/ecc-ml/post_results.py", line 246, in main
+    create_summary_files(args, target_param, param_candis, seeds, save_dir)
+  File "/data/ashizawa/ecc-ml/post_results.py", line 199, in create_summary_files
+    block_max_key = max(max(acc.keys()) for acc in block_acc_per_seed)
+  File "/data/ashizawa/ecc-ml/post_results.py", line 199, in <genexpr>
+    block_max_key = max(max(acc.keys()) for acc in block_acc_per_seed)
+ValueError: max() arg is an empty sequence
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.1/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.2/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.3/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.4/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.5/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.6/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.7/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.8/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/0.9/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/prune/1.0/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.1/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.2/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.3/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.4/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.5/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.6/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.7/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.8/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/0.9/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/prune/1.0/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.1/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.2/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.3/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.4/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.5/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.6/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.7/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.8/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/0.9/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-over-fitting1/1/random/1.0/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.1/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.2/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.3/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.4/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.5/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.6/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.7/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.8/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/0.9/32/False/rs/6/1/acc5.log
+opened ./ecc/classification-bert-5-1e-05-label-flipping1/1/random/1.0/32/False/rs/6/1/acc5.log
+opend ./train/classification/bert/5/1e-05/normal0/1/loss.csv
+opend ./train/classification/bert/5/1e-05/over-fitting1/1/loss.csv
+opend ./train/classification/bert/5/1e-05/label-flipping1/1/loss.csv

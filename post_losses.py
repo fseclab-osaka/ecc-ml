@@ -54,7 +54,10 @@ def main():
     torch_fix_seed(args.seed)
     device = torch.device(args.device)
 
-    seeds = [1, 2, 3, 4]
+    if args.arch == "bert":
+        seeds = [1]
+    else:
+        seeds = [1, 2, 3, 4]
     
     if args.over_fitting:
         mode = "over-fitting"
